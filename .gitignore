@@ -24,3 +24,11 @@ build/
 
 # Project specific
 *.log
+
+# Environment files
+.env
+.env.*
+
+# Audio files
+*.mp3
+*.mp3.asd

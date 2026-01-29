@@ -3,11 +3,11 @@
     "version": "1.0.0",
     "analyzed_at": "2026-01-14T22:53:08",
     "total_samples": 193,
-    "source_directory": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples"
+    "source_directory": "./samples"
   },
   "samples": [
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/001_Stab_Low__FX_Trail__126bpm_Am_-_PULSETECHNO_Zenhiser.wav",
+      "file_path": "samples/001_Stab_Low__FX_Trail__126bpm_Am_-_PULSETECHNO_Zenhiser.wav",
       "file_name": "001_Stab_Low__FX_Trail__126bpm_Am_-_PULSETECHNO_Zenhiser.wav",
       "file_size_bytes": 5040150,
       "duration_seconds": 19.048,
@@ -69,7 +69,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/005_Ride_-_DEEPTECHNO_Zenhiser.wav",
+      "file_path": "samples/005_Ride_-_DEEPTECHNO_Zenhiser.wav",
       "file_name": "005_Ride_-_DEEPTECHNO_Zenhiser.wav",
       "file_size_bytes": 463196,
       "duration_seconds": 1.75,
@@ -131,7 +131,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/02_WT_Drum_Loop_128_Stripped.wav",
+      "file_path": "samples/02_WT_Drum_Loop_128_Stripped.wav",
       "file_name": "02_WT_Drum_Loop_128_Stripped.wav",
       "file_size_bytes": 1985692,
       "duration_seconds": 7.5,
@@ -191,7 +191,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/045_Chord_Hit_Gm_-_TECHNOC_Zenhiser.wav",
+      "file_path": "samples/045_Chord_Hit_Gm_-_TECHNOC_Zenhiser.wav",
       "file_name": "045_Chord_Hit_Gm_-_TECHNOC_Zenhiser.wav",
       "file_size_bytes": 316008,
       "duration_seconds": 1.19,
@@ -253,7 +253,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/069_Chord_Hit_Am_-_TECHNOC_Zenhiser.wav",
+      "file_path": "samples/069_Chord_Hit_Am_-_TECHNOC_Zenhiser.wav",
       "file_name": "069_Chord_Hit_Am_-_TECHNOC_Zenhiser.wav",
       "file_size_bytes": 126768,
       "duration_seconds": 0.476,
@@ -315,7 +315,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/073_Chord_Hit_Gm_-_TECHNOC_Zenhiser.wav",
+      "file_path": "samples/073_Chord_Hit_Gm_-_TECHNOC_Zenhiser.wav",
       "file_name": "073_Chord_Hit_Gm_-_TECHNOC_Zenhiser.wav",
       "file_size_bytes": 126768,
       "duration_seconds": 0.476,
@@ -377,7 +377,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/075_AT_Radius_Drum_-_Simulate_Kick_122.wav",
+      "file_path": "samples/075_AT_Radius_Drum_-_Simulate_Kick_122.wav",
       "file_name": "075_AT_Radius_Drum_-_Simulate_Kick_122.wav",
       "file_size_bytes": 2082146,
       "duration_seconds": 7.869,
@@ -440,7 +440,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/125BPM_LONG_RISER_01.wav",
+      "file_path": "samples/125BPM_LONG_RISER_01.wav",
       "file_name": "125BPM_LONG_RISER_01.wav",
       "file_size_bytes": 4076544,
       "duration_seconds": 15.36,
@@ -501,7 +501,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/146_Chord_Hit_Am_-_TECHNOC_Zenhiser.wav",
+      "file_path": "samples/146_Chord_Hit_Am_-_TECHNOC_Zenhiser.wav",
       "file_name": "146_Chord_Hit_Am_-_TECHNOC_Zenhiser.wav",
       "file_size_bytes": 174072,
       "duration_seconds": 0.655,
@@ -562,7 +562,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/189_AT_Induction_Drum_-_Range_128_Kick.wav",
+      "file_path": "samples/189_AT_Induction_Drum_-_Range_128_Kick.wav",
       "file_name": "189_AT_Induction_Drum_-_Range_128_Kick.wav",
       "file_size_bytes": 1984544,
       "duration_seconds": 7.5,
@@ -625,7 +625,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/375_Bassdrum_Acc11_Tune11_Att11_Dec11_-_TR909TDM_Zenhiser.wav",
+      "file_path": "samples/375_Bassdrum_Acc11_Tune11_Att11_Dec11_-_TR909TDM_Zenhiser.wav",
       "file_name": "375_Bassdrum_Acc11_Tune11_Att11_Dec11_-_TR909TDM_Zenhiser.wav",
       "file_size_bytes": 244904,
       "duration_seconds": 0.921,
@@ -687,7 +687,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/50_FX_125.wav",
+      "file_path": "samples/50_FX_125.wav",
       "file_name": "50_FX_125.wav",
       "file_size_bytes": 2715542,
       "duration_seconds": 15.36,
@@ -748,7 +748,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/91V_HED_140_drum_fill_snare_riser_glow.wav",
+      "file_path": "samples/91V_HED_140_drum_fill_snare_riser_glow.wav",
       "file_name": "91V_HED_140_drum_fill_snare_riser_glow.wav",
       "file_size_bytes": 3628932,
       "duration_seconds": 13.714,
@@ -808,7 +808,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/91V_HT_145_drum_fill_factory_snare_riser.wav",
+      "file_path": "samples/91V_HT_145_drum_fill_factory_snare_riser.wav",
       "file_name": "91V_HT_145_drum_fill_factory_snare_riser.wav",
       "file_size_bytes": 876004,
       "duration_seconds": 3.31,
@@ -870,7 +870,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/AM_RDT3_128_Bass_Loop_Justify.wav",
+      "file_path": "samples/AM_RDT3_128_Bass_Loop_Justify.wav",
       "file_name": "AM_RDT3_128_Bass_Loop_Justify.wav",
       "file_size_bytes": 1092288,
       "duration_seconds": 3.75,
@@ -932,7 +932,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/AT_Dirt_128_Kit_Loop_Street_Kick.wav",
+      "file_path": "samples/AT_Dirt_128_Kit_Loop_Street_Kick.wav",
       "file_name": "AT_Dirt_128_Kit_Loop_Street_Kick.wav",
       "file_size_bytes": 1984544,
       "duration_seconds": 7.5,
@@ -995,7 +995,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/AT_TR_Ride_One_Shot_Metal.wav",
+      "file_path": "samples/AT_TR_Ride_One_Shot_Metal.wav",
       "file_name": "AT_TR_Ride_One_Shot_Metal.wav",
       "file_size_bytes": 264680,
       "duration_seconds": 1.0,
@@ -1056,7 +1056,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/AU_HHT_140_kick_loop_clutch_sonic.wav",
+      "file_path": "samples/AU_HHT_140_kick_loop_clutch_sonic.wav",
       "file_name": "AU_HHT_140_kick_loop_clutch_sonic.wav",
       "file_size_bytes": 907244,
       "duration_seconds": 3.429,
@@ -1118,7 +1118,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/AU_HRB_fx_clap_impact_excitant.wav",
+      "file_path": "samples/AU_HRB_fx_clap_impact_excitant.wav",
       "file_name": "AU_HRB_fx_clap_impact_excitant.wav",
       "file_size_bytes": 3151220,
       "duration_seconds": 11.909,
@@ -1178,7 +1178,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/AU_PTT2_fx_impact_circuit.wav",
+      "file_path": "samples/AU_PTT2_fx_impact_circuit.wav",
       "file_name": "AU_PTT2_fx_impact_circuit.wav",
       "file_size_bytes": 1457822,
       "duration_seconds": 5.509,
@@ -1239,7 +1239,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/AU_TB_140_kick_bass_wasting_time_misterious_D#min.wav",
+      "file_path": "samples/AU_TB_140_kick_bass_wasting_time_misterious_D#min.wav",
       "file_name": "AU_TB_140_kick_bass_wasting_time_misterious_D#min.wav",
       "file_size_bytes": 1814444,
       "duration_seconds": 6.857,
@@ -1300,7 +1300,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/BOS_BRT_Kick_Rumble_One_Shot_Asign.wav",
+      "file_path": "samples/BOS_BRT_Kick_Rumble_One_Shot_Asign.wav",
       "file_name": "BOS_BRT_Kick_Rumble_One_Shot_Asign.wav",
       "file_size_bytes": 453646,
       "duration_seconds": 1.714,
@@ -1361,7 +1361,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/BOS_BRT_Kick_Rumble_One_Shot_Bern.wav",
+      "file_path": "samples/BOS_BRT_Kick_Rumble_One_Shot_Bern.wav",
       "file_name": "BOS_BRT_Kick_Rumble_One_Shot_Bern.wav",
       "file_size_bytes": 453646,
       "duration_seconds": 1.714,
@@ -1423,7 +1423,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/BOS_BRT_Kick_Rumble_One_Shot_Halogen.wav",
+      "file_path": "samples/BOS_BRT_Kick_Rumble_One_Shot_Halogen.wav",
       "file_name": "BOS_BRT_Kick_Rumble_One_Shot_Halogen.wav",
       "file_size_bytes": 453646,
       "duration_seconds": 1.714,
@@ -1484,7 +1484,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/BOS_BRT_Kick_Rumble_One_Shot_Irate.wav",
+      "file_path": "samples/BOS_BRT_Kick_Rumble_One_Shot_Irate.wav",
       "file_name": "BOS_BRT_Kick_Rumble_One_Shot_Irate.wav",
       "file_size_bytes": 453646,
       "duration_seconds": 1.714,
@@ -1546,7 +1546,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/BOS_BRT_Kick_Rumble_One_Shot_Konvent.wav",
+      "file_path": "samples/BOS_BRT_Kick_Rumble_One_Shot_Konvent.wav",
       "file_name": "BOS_BRT_Kick_Rumble_One_Shot_Konvent.wav",
       "file_size_bytes": 453646,
       "duration_seconds": 1.714,
@@ -1608,7 +1608,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/BOS_BRT_Kick_Rumble_One_Shot_Mastery.wav",
+      "file_path": "samples/BOS_BRT_Kick_Rumble_One_Shot_Mastery.wav",
       "file_name": "BOS_BRT_Kick_Rumble_One_Shot_Mastery.wav",
       "file_size_bytes": 453646,
       "duration_seconds": 1.714,
@@ -1669,7 +1669,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/BOS_BRT_Kick_Rumble_One_Shot_Quantic.wav",
+      "file_path": "samples/BOS_BRT_Kick_Rumble_One_Shot_Quantic.wav",
       "file_name": "BOS_BRT_Kick_Rumble_One_Shot_Quantic.wav",
       "file_size_bytes": 453646,
       "duration_seconds": 1.714,
@@ -1730,7 +1730,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/BOS_BRT_Kick_Rumble_One_Shot_Statin.wav",
+      "file_path": "samples/BOS_BRT_Kick_Rumble_One_Shot_Statin.wav",
       "file_name": "BOS_BRT_Kick_Rumble_One_Shot_Statin.wav",
       "file_size_bytes": 453646,
       "duration_seconds": 1.714,
@@ -1791,7 +1791,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/BOS_DHT_Kick_One_Shot_Rumble_Darkness.wav",
+      "file_path": "samples/BOS_DHT_Kick_One_Shot_Rumble_Darkness.wav",
       "file_name": "BOS_DHT_Kick_One_Shot_Rumble_Darkness.wav",
       "file_size_bytes": 244294,
       "duration_seconds": 0.923,
@@ -1853,7 +1853,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/BOS_DHT_Kick_One_Shot_Rumble_Hard.wav",
+      "file_path": "samples/BOS_DHT_Kick_One_Shot_Rumble_Hard.wav",
       "file_name": "BOS_DHT_Kick_One_Shot_Rumble_Hard.wav",
       "file_size_bytes": 244294,
       "duration_seconds": 0.923,
@@ -1915,7 +1915,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/BOS_DHT_Kick_One_Shot_Rumble_Massive.wav",
+      "file_path": "samples/BOS_DHT_Kick_One_Shot_Rumble_Massive.wav",
       "file_name": "BOS_DHT_Kick_One_Shot_Rumble_Massive.wav",
       "file_size_bytes": 244294,
       "duration_seconds": 0.923,
@@ -1977,7 +1977,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/BOS_DHT_Kick_One_Shot_Rumble_Phat.wav",
+      "file_path": "samples/BOS_DHT_Kick_One_Shot_Rumble_Phat.wav",
       "file_name": "BOS_DHT_Kick_One_Shot_Rumble_Phat.wav",
       "file_size_bytes": 244294,
       "duration_seconds": 0.923,
@@ -2039,7 +2039,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/BOS_DHT_Kick_One_Shot_Rumble_Scary.wav",
+      "file_path": "samples/BOS_DHT_Kick_One_Shot_Rumble_Scary.wav",
       "file_name": "BOS_DHT_Kick_One_Shot_Rumble_Scary.wav",
       "file_size_bytes": 244294,
       "duration_seconds": 0.923,
@@ -2101,7 +2101,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/BOS_DHT_Kick_One_Shot_Rumble_Space.wav",
+      "file_path": "samples/BOS_DHT_Kick_One_Shot_Rumble_Space.wav",
       "file_name": "BOS_DHT_Kick_One_Shot_Rumble_Space.wav",
       "file_size_bytes": 244294,
       "duration_seconds": 0.923,
@@ -2163,7 +2163,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/BOS_DHT_Kick_One_Shot_Rumble_Warehouse.wav",
+      "file_path": "samples/BOS_DHT_Kick_One_Shot_Rumble_Warehouse.wav",
       "file_name": "BOS_DHT_Kick_One_Shot_Rumble_Warehouse.wav",
       "file_size_bytes": 244294,
       "duration_seconds": 0.923,
@@ -2225,7 +2225,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/BOS_DT2_123_FX_Riser_Loop_Tonality_G#.wav",
+      "file_path": "samples/BOS_DT2_123_FX_Riser_Loop_Tonality_G#.wav",
       "file_name": "BOS_DT2_123_FX_Riser_Loop_Tonality_G#.wav",
       "file_size_bytes": 8260732,
       "duration_seconds": 31.22,
@@ -2284,7 +2284,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/BOS_HDT_130_Drum_Kick_Loop_Fuse.wav",
+      "file_path": "samples/BOS_HDT_130_Drum_Kick_Loop_Fuse.wav",
       "file_name": "BOS_HDT_130_Drum_Kick_Loop_Fuse.wav",
       "file_size_bytes": 1954074,
       "duration_seconds": 7.385,
@@ -2345,7 +2345,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/BOS_HDT_130_Drum_Kick_Loop_Wings.wav",
+      "file_path": "samples/BOS_HDT_130_Drum_Kick_Loop_Wings.wav",
       "file_name": "BOS_HDT_130_Drum_Kick_Loop_Wings.wav",
       "file_size_bytes": 1954074,
       "duration_seconds": 7.385,
@@ -2407,7 +2407,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/BOS_HDT_FX_Impact_One_Shot_Focused.wav",
+      "file_path": "samples/BOS_HDT_FX_Impact_One_Shot_Focused.wav",
       "file_name": "BOS_HDT_FX_Impact_One_Shot_Focused.wav",
       "file_size_bytes": 821868,
       "duration_seconds": 3.106,
@@ -2468,7 +2468,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/BOS_HDT_FX_Riser_One_Shot_Vega.wav",
+      "file_path": "samples/BOS_HDT_FX_Riser_One_Shot_Vega.wav",
       "file_name": "BOS_HDT_FX_Riser_One_Shot_Vega.wav",
       "file_size_bytes": 1097298,
       "duration_seconds": 4.147,
@@ -2530,7 +2530,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/BOS_HDT_Kick_One_Shot_Rumble.wav",
+      "file_path": "samples/BOS_HDT_Kick_One_Shot_Rumble.wav",
       "file_name": "BOS_HDT_Kick_One_Shot_Rumble.wav",
       "file_size_bytes": 122168,
       "duration_seconds": 0.462,
@@ -2591,7 +2591,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/BOS_HGT_140_Drum_Kick_Loop_Strategy_G#.wav",
+      "file_path": "samples/BOS_HGT_140_Drum_Kick_Loop_Strategy_G#.wav",
       "file_name": "BOS_HGT_140_Drum_Kick_Loop_Strategy_G#.wav",
       "file_size_bytes": 912910,
       "duration_seconds": 3.429,
@@ -2654,7 +2654,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/BOS_HGT_144_Drum_Ride_Loop_Flaak.wav",
+      "file_path": "samples/BOS_HGT_144_Drum_Ride_Loop_Flaak.wav",
       "file_name": "BOS_HGT_144_Drum_Ride_Loop_Flaak.wav",
       "file_size_bytes": 882102,
       "duration_seconds": 3.333,
@@ -2715,7 +2715,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/BOS_HGT_145_Drum_Kick_Loop_Fourmatic_F#.wav",
+      "file_path": "samples/BOS_HGT_145_Drum_Kick_Loop_Fourmatic_F#.wav",
       "file_name": "BOS_HGT_145_Drum_Kick_Loop_Fourmatic_F#.wav",
       "file_size_bytes": 884308,
       "duration_seconds": 3.31,
@@ -2777,7 +2777,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/BOS_HGT_148_Drum_Kick_Loop_Decisive_A.wav",
+      "file_path": "samples/BOS_HGT_148_Drum_Kick_Loop_Decisive_A.wav",
       "file_name": "BOS_HGT_148_Drum_Kick_Loop_Decisive_A.wav",
       "file_size_bytes": 864760,
       "duration_seconds": 3.243,
@@ -2839,7 +2839,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/BOS_HGT_Drum_Hat_Open_One_Shot_Parka.wav",
+      "file_path": "samples/BOS_HGT_Drum_Hat_Open_One_Shot_Parka.wav",
       "file_name": "BOS_HGT_Drum_Hat_Open_One_Shot_Parka.wav",
       "file_size_bytes": 93426,
       "duration_seconds": 0.353,
@@ -2900,7 +2900,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/BOS_MMT_125_Bass_Synth_Loop_Voyage_Am.wav",
+      "file_path": "samples/BOS_MMT_125_Bass_Synth_Loop_Voyage_Am.wav",
       "file_name": "BOS_MMT_125_Bass_Synth_Loop_Voyage_Am.wav",
       "file_size_bytes": 2032172,
       "duration_seconds": 7.68,
@@ -2962,7 +2962,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/BOS_MT_126_Drum_Ride_Loop_Hemar.wav",
+      "file_path": "samples/BOS_MT_126_Drum_Ride_Loop_Hemar.wav",
       "file_name": "BOS_MT_126_Drum_Ride_Loop_Hemar.wav",
       "file_size_bytes": 1008102,
       "duration_seconds": 3.81,
@@ -3024,7 +3024,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/BOS_NTH_128_Drum_Top_Loop_Tampa.wav",
+      "file_path": "samples/BOS_NTH_128_Drum_Top_Loop_Tampa.wav",
       "file_name": "BOS_NTH_128_Drum_Top_Loop_Tampa.wav",
       "file_size_bytes": 1984602,
       "duration_seconds": 7.5,
@@ -3084,7 +3084,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/Bass_Loops_RollerBass_01_Fm_128.wav",
+      "file_path": "samples/Bass_Loops_RollerBass_01_Fm_128.wav",
       "file_name": "Bass_Loops_RollerBass_01_Fm_128.wav",
       "file_size_bytes": 1984544,
       "duration_seconds": 7.5,
@@ -3146,7 +3146,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/Bass_Loops_SystemBass_04_Am_122.wav",
+      "file_path": "samples/Bass_Loops_SystemBass_04_Am_122.wav",
       "file_name": "Bass_Loops_SystemBass_04_Am_122.wav",
       "file_size_bytes": 2083382,
       "duration_seconds": 7.869,
@@ -3208,7 +3208,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/CSMTD_Top_Loop_14_128.wav",
+      "file_path": "samples/CSMTD_Top_Loop_14_128.wav",
       "file_name": "CSMTD_Top_Loop_14_128.wav",
       "file_size_bytes": 1984578,
       "duration_seconds": 7.5,
@@ -3267,7 +3267,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/DS_HT2_drum_kick_lobby_rumble.wav",
+      "file_path": "samples/DS_HT2_drum_kick_lobby_rumble.wav",
       "file_name": "DS_HT2_drum_kick_lobby_rumble.wav",
       "file_size_bytes": 409722,
       "duration_seconds": 1.502,
@@ -3329,7 +3329,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/DS_HT_155_drum_kick_lion_rolling_G.wav",
+      "file_path": "samples/DS_HT_155_drum_kick_lion_rolling_G.wav",
       "file_name": "DS_HT_155_drum_kick_lion_rolling_G.wav",
       "file_size_bytes": 831696,
       "duration_seconds": 3.097,
@@ -3391,7 +3391,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/DS_HT_155_fx_riser_sugar_screech_Bmin.wav",
+      "file_path": "samples/DS_HT_155_fx_riser_sugar_screech_Bmin.wav",
       "file_name": "DS_HT_155_fx_riser_sugar_screech_Bmin.wav",
       "file_size_bytes": 3289914,
       "duration_seconds": 12.387,
@@ -3450,7 +3450,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/DS_HT_156_fx_riser_rave_main.wav",
+      "file_path": "samples/DS_HT_156_fx_riser_rave_main.wav",
       "file_name": "DS_HT_156_fx_riser_rave_main.wav",
       "file_size_bytes": 3268902,
       "duration_seconds": 12.308,
@@ -3511,7 +3511,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/DS_HT_158_drum_kick_mirror_hard_G.wav",
+      "file_path": "samples/DS_HT_158_drum_kick_mirror_hard_G.wav",
       "file_name": "DS_HT_158_drum_kick_mirror_hard_G.wav",
       "file_size_bytes": 816138,
       "duration_seconds": 3.038,
@@ -3573,7 +3573,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/DS_HT_drum_hat_open_rave.wav",
+      "file_path": "samples/DS_HT_drum_hat_open_rave.wav",
       "file_name": "DS_HT_drum_hat_open_rave.wav",
       "file_size_bytes": 63426,
       "duration_seconds": 0.193,
@@ -3635,7 +3635,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/DS_HT_drum_hat_open_shade.wav",
+      "file_path": "samples/DS_HT_drum_hat_open_shade.wav",
       "file_name": "DS_HT_drum_hat_open_shade.wav",
       "file_size_bytes": 59070,
       "duration_seconds": 0.177,
@@ -3694,7 +3694,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/DS_HT_fx_impact_home.wav",
+      "file_path": "samples/DS_HT_fx_impact_home.wav",
       "file_name": "DS_HT_fx_impact_home.wav",
       "file_size_bytes": 1619982,
       "duration_seconds": 6.076,
@@ -3754,7 +3754,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/DS_MARNIK_drum_clap_big.wav",
+      "file_path": "samples/DS_MARNIK_drum_clap_big.wav",
       "file_name": "DS_MARNIK_drum_clap_big.wav",
       "file_size_bytes": 144588,
       "duration_seconds": 0.5,
@@ -3812,7 +3812,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/DS_MT2_124_bass_synth_loop_fire_Gmin.wav",
+      "file_path": "samples/DS_MT2_124_bass_synth_loop_fire_Gmin.wav",
       "file_name": "DS_MT2_124_bass_synth_loop_fire_Gmin.wav",
       "file_size_bytes": 2060808,
       "duration_seconds": 7.742,
@@ -3874,7 +3874,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/DS_MT2_125_bass_synth_loop_sunny_Gmin.wav",
+      "file_path": "samples/DS_MT2_125_bass_synth_loop_sunny_Gmin.wav",
       "file_name": "DS_MT2_125_bass_synth_loop_sunny_Gmin.wav",
       "file_size_bytes": 2044416,
       "duration_seconds": 7.68,
@@ -3936,7 +3936,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/DS_T2_drum_kick_effective_rumble.wav",
+      "file_path": "samples/DS_T2_drum_kick_effective_rumble.wav",
       "file_name": "DS_T2_drum_kick_effective_rumble.wav",
       "file_size_bytes": 134412,
       "duration_seconds": 0.462,
@@ -3996,7 +3996,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/DS_T2_drum_kick_power_rumble.wav",
+      "file_path": "samples/DS_T2_drum_kick_power_rumble.wav",
       "file_name": "DS_T2_drum_kick_power_rumble.wav",
       "file_size_bytes": 135684,
       "duration_seconds": 0.466,
@@ -4056,7 +4056,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/DS_T_132_cymbal_ride_loop_dancing.wav",
+      "file_path": "samples/DS_T_132_cymbal_ride_loop_dancing.wav",
       "file_name": "DS_T_132_cymbal_ride_loop_dancing.wav",
       "file_size_bytes": 974472,
       "duration_seconds": 3.636,
@@ -4118,7 +4118,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/DT_Single_Synth_Hit_05_Am.wav",
+      "file_path": "samples/DT_Single_Synth_Hit_05_Am.wav",
       "file_name": "DT_Single_Synth_Hit_05_Am.wav",
       "file_size_bytes": 508186,
       "duration_seconds": 1.92,
@@ -4180,7 +4180,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/FF_MHT_130_top_loop_fleeting.wav",
+      "file_path": "samples/FF_MHT_130_top_loop_fleeting.wav",
       "file_name": "FF_MHT_130_top_loop_fleeting.wav",
       "file_size_bytes": 1954246,
       "duration_seconds": 7.385,
@@ -4239,7 +4239,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/FF_MT_124_kit_loop_express_bass_Amin.wav",
+      "file_path": "samples/FF_MT_124_kit_loop_express_bass_Amin.wav",
       "file_name": "FF_MT_124_kit_loop_express_bass_Amin.wav",
       "file_size_bytes": 2048784,
       "duration_seconds": 7.742,
@@ -4300,7 +4300,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/FF_UDT_126_atmosphere_darkmouth.wav",
+      "file_path": "samples/FF_UDT_126_atmosphere_darkmouth.wav",
       "file_name": "FF_UDT_126_atmosphere_darkmouth.wav",
       "file_size_bytes": 2016050,
       "duration_seconds": 7.619,
@@ -4359,7 +4359,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/FF_UDT_126_atmosphere_fractions.wav",
+      "file_path": "samples/FF_UDT_126_atmosphere_fractions.wav",
       "file_name": "FF_UDT_126_atmosphere_fractions.wav",
       "file_size_bytes": 2016050,
       "duration_seconds": 7.619,
@@ -4419,7 +4419,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/FF_UDT_126_atmosphere_tender_Gmin.wav",
+      "file_path": "samples/FF_UDT_126_atmosphere_tender_Gmin.wav",
       "file_name": "FF_UDT_126_atmosphere_tender_Gmin.wav",
       "file_size_bytes": 4032044,
       "duration_seconds": 15.238,
@@ -4479,7 +4479,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/FF_UDT_126_atmosphere_whine_Amin.wav",
+      "file_path": "samples/FF_UDT_126_atmosphere_whine_Amin.wav",
       "file_name": "FF_UDT_126_atmosphere_whine_Amin.wav",
       "file_size_bytes": 4032044,
       "duration_seconds": 15.238,
@@ -4539,7 +4539,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/FF_UDT_126_atmosphere_world_Cmin.wav",
+      "file_path": "samples/FF_UDT_126_atmosphere_world_Cmin.wav",
       "file_name": "FF_UDT_126_atmosphere_world_Cmin.wav",
       "file_size_bytes": 4032044,
       "duration_seconds": 15.238,
@@ -4599,7 +4599,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/FL_PVT_135_Drum_Kick_Heat_Techno_Dmin.wav",
+      "file_path": "samples/FL_PVT_135_Drum_Kick_Heat_Techno_Dmin.wav",
       "file_name": "FL_PVT_135_Drum_Kick_Heat_Techno_Dmin.wav",
       "file_size_bytes": 1882524,
       "duration_seconds": 7.111,
@@ -4662,7 +4662,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/FL_PVT_136_Bass_Loop_Boys_Driving_Gmin.wav",
+      "file_path": "samples/FL_PVT_136_Bass_Loop_Boys_Driving_Gmin.wav",
       "file_name": "FL_PVT_136_Bass_Loop_Boys_Driving_Gmin.wav",
       "file_size_bytes": 1868664,
       "duration_seconds": 7.059,
@@ -4724,7 +4724,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/FO4_BBTH_clap_latex.wav",
+      "file_path": "samples/FO4_BBTH_clap_latex.wav",
       "file_name": "FO4_BBTH_clap_latex.wav",
       "file_size_bytes": 100642,
       "duration_seconds": 0.379,
@@ -4782,7 +4782,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/FO4_DHT_140_drum_warehouse_kick.wav",
+      "file_path": "samples/FO4_DHT_140_drum_warehouse_kick.wav",
       "file_name": "FO4_DHT_140_drum_warehouse_kick.wav",
       "file_size_bytes": 1814678,
       "duration_seconds": 6.857,
@@ -4844,7 +4844,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/FO4_DHT_hat_open_haus.wav",
+      "file_path": "samples/FO4_DHT_hat_open_haus.wav",
       "file_name": "FO4_DHT_hat_open_haus.wav",
       "file_size_bytes": 65336,
       "duration_seconds": 0.246,
@@ -4906,7 +4906,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/FO4_GRT_hat_open_low.wav",
+      "file_path": "samples/FO4_GRT_hat_open_low.wav",
       "file_name": "FO4_GRT_hat_open_low.wav",
       "file_size_bytes": 97584,
       "duration_seconds": 0.368,
@@ -4967,7 +4967,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/FO4_INT_hat_open_pelerin.wav",
+      "file_path": "samples/FO4_INT_hat_open_pelerin.wav",
       "file_name": "FO4_INT_hat_open_pelerin.wav",
       "file_size_bytes": 96832,
       "duration_seconds": 0.365,
@@ -5029,7 +5029,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/FO4_INT_hat_open_sparky.wav",
+      "file_path": "samples/FO4_INT_hat_open_sparky.wav",
       "file_name": "FO4_INT_hat_open_sparky.wav",
       "file_size_bytes": 57460,
       "duration_seconds": 0.216,
@@ -5089,7 +5089,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/FO4_MZT_128_kit_loop_requeim_synth_Gmin.wav",
+      "file_path": "samples/FO4_MZT_128_kit_loop_requeim_synth_Gmin.wav",
       "file_name": "FO4_MZT_128_kit_loop_requeim_synth_Gmin.wav",
       "file_size_bytes": 1984774,
       "duration_seconds": 7.5,
@@ -5151,7 +5151,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/FO4_UBRT_clap_color.wav",
+      "file_path": "samples/FO4_UBRT_clap_color.wav",
       "file_name": "FO4_UBRT_clap_color.wav",
       "file_size_bytes": 50412,
       "duration_seconds": 0.189,
@@ -5212,7 +5212,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/FO4_UBRT_clap_flat.wav",
+      "file_path": "samples/FO4_UBRT_clap_flat.wav",
       "file_name": "FO4_UBRT_clap_flat.wav",
       "file_size_bytes": 94092,
       "duration_seconds": 0.354,
@@ -5271,7 +5271,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/FO4_UBRT_clap_know.wav",
+      "file_path": "samples/FO4_UBRT_clap_know.wav",
       "file_name": "FO4_UBRT_clap_know.wav",
       "file_size_bytes": 120576,
       "duration_seconds": 0.455,
@@ -5331,7 +5331,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/FO4_UBRT_clap_tone.wav",
+      "file_path": "samples/FO4_UBRT_clap_tone.wav",
       "file_name": "FO4_UBRT_clap_tone.wav",
       "file_size_bytes": 54990,
       "duration_seconds": 0.207,
@@ -5391,7 +5391,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/FO4_UBRT_clap_work.wav",
+      "file_path": "samples/FO4_UBRT_clap_work.wav",
       "file_name": "FO4_UBRT_clap_work.wav",
       "file_size_bytes": 56844,
       "duration_seconds": 0.214,
@@ -5450,7 +5450,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/FSS_FTE_hat_open_basic.wav",
+      "file_path": "samples/FSS_FTE_hat_open_basic.wav",
       "file_name": "FSS_FTE_hat_open_basic.wav",
       "file_size_bytes": 55204,
       "duration_seconds": 0.313,
@@ -5512,7 +5512,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/FSS_S2FTEV2_135_Kick_Rumble_Click.wav",
+      "file_path": "samples/FSS_S2FTEV2_135_Kick_Rumble_Click.wav",
       "file_name": "FSS_S2FTEV2_135_Kick_Rumble_Click.wav",
       "file_size_bytes": 122780,
       "duration_seconds": 0.444,
@@ -5573,7 +5573,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/FTCH_Drum_Top_Loop_04_Dry_130.wav",
+      "file_path": "samples/FTCH_Drum_Top_Loop_04_Dry_130.wav",
       "file_name": "FTCH_Drum_Top_Loop_04_Dry_130.wav",
       "file_size_bytes": 1954016,
       "duration_seconds": 7.385,
@@ -5633,7 +5633,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/FX_Loops_DepthRisers_01_Fm_128.wav",
+      "file_path": "samples/FX_Loops_DepthRisers_01_Fm_128.wav",
       "file_name": "FX_Loops_DepthRisers_01_Fm_128.wav",
       "file_size_bytes": 3969044,
       "duration_seconds": 15.0,
@@ -5693,7 +5693,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/FX_Loops_DetroitReverbFX_01_Fm_128.wav",
+      "file_path": "samples/FX_Loops_DetroitReverbFX_01_Fm_128.wav",
       "file_name": "FX_Loops_DetroitReverbFX_01_Fm_128.wav",
       "file_size_bytes": 3969044,
       "duration_seconds": 15.0,
@@ -5754,7 +5754,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/FX_OneShots_FX_26.wav",
+      "file_path": "samples/FX_OneShots_FX_26.wav",
       "file_name": "FX_OneShots_FX_26.wav",
       "file_size_bytes": 456756,
       "duration_seconds": 1.721,
@@ -5815,7 +5815,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/Hi_Hat_Open_001_TL.wav",
+      "file_path": "samples/Hi_Hat_Open_001_TL.wav",
       "file_name": "Hi_Hat_Open_001_TL.wav",
       "file_size_bytes": 131842,
       "duration_seconds": 0.488,
@@ -5876,7 +5876,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/Hi_Hat_Open_009_TL.wav",
+      "file_path": "samples/Hi_Hat_Open_009_TL.wav",
       "file_name": "Hi_Hat_Open_009_TL.wav",
       "file_size_bytes": 255862,
       "duration_seconds": 0.95,
@@ -5938,7 +5938,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/Kicks_OneShots_Kick_05.wav",
+      "file_path": "samples/Kicks_OneShots_Kick_05.wav",
       "file_name": "Kicks_OneShots_Kick_05.wav",
       "file_size_bytes": 391692,
       "duration_seconds": 1.475,
@@ -5999,7 +5999,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/Kicks_OneShots_Kick_08.wav",
+      "file_path": "samples/Kicks_OneShots_Kick_08.wav",
       "file_name": "Kicks_OneShots_Kick_08.wav",
       "file_size_bytes": 196494,
       "duration_seconds": 0.738,
@@ -6061,7 +6061,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/Kit_3_PT_Ride_Loop_Gm_125.wav",
+      "file_path": "samples/Kit_3_PT_Ride_Loop_Gm_125.wav",
       "file_name": "Kit_3_PT_Ride_Loop_Gm_125.wav",
       "file_size_bytes": 2034114,
       "duration_seconds": 7.68,
@@ -6123,7 +6123,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/Kit_4_UT2_Ride_Loop_Gm_125.wav",
+      "file_path": "samples/Kit_4_UT2_Ride_Loop_Gm_125.wav",
       "file_name": "Kit_4_UT2_Ride_Loop_Gm_125.wav",
       "file_size_bytes": 2542146,
       "duration_seconds": 9.6,
@@ -6186,7 +6186,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/Kit_5_UT2_Ride_Loop_Fm_125.wav",
+      "file_path": "samples/Kit_5_UT2_Ride_Loop_Fm_125.wav",
       "file_name": "Kit_5_UT2_Ride_Loop_Fm_125.wav",
       "file_size_bytes": 2034114,
       "duration_seconds": 7.68,
@@ -6248,7 +6248,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/MARS_808_open_hat_tape_long.wav",
+      "file_path": "samples/MARS_808_open_hat_tape_long.wav",
       "file_name": "MARS_808_open_hat_tape_long.wav",
       "file_size_bytes": 86758,
       "duration_seconds": 0.642,
@@ -6309,7 +6309,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/MARS_909_closed_hat_clean.wav",
+      "file_path": "samples/MARS_909_closed_hat_clean.wav",
       "file_name": "MARS_909_closed_hat_clean.wav",
       "file_size_bytes": 11768,
       "duration_seconds": 0.084,
@@ -6372,7 +6372,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/MARS_909_closed_hat_clean_natural.wav",
+      "file_path": "samples/MARS_909_closed_hat_clean_natural.wav",
       "file_name": "MARS_909_closed_hat_clean_natural.wav",
       "file_size_bytes": 25430,
       "duration_seconds": 0.186,
@@ -6434,7 +6434,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/MARS_909_closed_hat_clean_snap.wav",
+      "file_path": "samples/MARS_909_closed_hat_clean_snap.wav",
       "file_name": "MARS_909_closed_hat_clean_snap.wav",
       "file_size_bytes": 12132,
       "duration_seconds": 0.087,
@@ -6496,7 +6496,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/MARS_909_closed_hat_color_hi.wav",
+      "file_path": "samples/MARS_909_closed_hat_color_hi.wav",
       "file_name": "MARS_909_closed_hat_color_hi.wav",
       "file_size_bytes": 11802,
       "duration_seconds": 0.085,
@@ -6558,7 +6558,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/MARS_909_closed_hat_color_lite.wav",
+      "file_path": "samples/MARS_909_closed_hat_color_lite.wav",
       "file_name": "MARS_909_closed_hat_color_lite.wav",
       "file_size_bytes": 15254,
       "duration_seconds": 0.11,
@@ -6619,7 +6619,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/MARS_909_closed_hat_color_natural.wav",
+      "file_path": "samples/MARS_909_closed_hat_color_natural.wav",
       "file_name": "MARS_909_closed_hat_color_natural.wav",
       "file_size_bytes": 19552,
       "duration_seconds": 0.142,
@@ -6682,7 +6682,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/MARS_909_closed_hat_color_splash.wav",
+      "file_path": "samples/MARS_909_closed_hat_color_splash.wav",
       "file_name": "MARS_909_closed_hat_color_splash.wav",
       "file_size_bytes": 16814,
       "duration_seconds": 0.122,
@@ -6745,7 +6745,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/MARS_909_closed_hat_color_tail.wav",
+      "file_path": "samples/MARS_909_closed_hat_color_tail.wav",
       "file_name": "MARS_909_closed_hat_color_tail.wav",
       "file_size_bytes": 20374,
       "duration_seconds": 0.148,
@@ -6807,7 +6807,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/MARS_909_closed_hat_crunch_tite.wav",
+      "file_path": "samples/MARS_909_closed_hat_crunch_tite.wav",
       "file_name": "MARS_909_closed_hat_crunch_tite.wav",
       "file_size_bytes": 8390,
       "duration_seconds": 0.059,
@@ -6868,7 +6868,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/MARS_909_ride_smooth_mid.wav",
+      "file_path": "samples/MARS_909_ride_smooth_mid.wav",
       "file_name": "MARS_909_ride_smooth_mid.wav",
       "file_size_bytes": 129424,
       "duration_seconds": 0.96,
@@ -6931,7 +6931,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/MARS_VSP_closed_hat_909_standard_hi.wav",
+      "file_path": "samples/MARS_VSP_closed_hat_909_standard_hi.wav",
       "file_name": "MARS_VSP_closed_hat_909_standard_hi.wav",
       "file_size_bytes": 10182,
       "duration_seconds": 0.076,
@@ -6993,7 +6993,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/MDT2_Atmosphere_Loop_10_D_130.wav",
+      "file_path": "samples/MDT2_Atmosphere_Loop_10_D_130.wav",
       "file_name": "MDT2_Atmosphere_Loop_10_D_130.wav",
       "file_size_bytes": 3908750,
       "duration_seconds": 14.769,
@@ -7053,7 +7053,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/MDT_128_top_loop_deep_house.wav",
+      "file_path": "samples/MDT_128_top_loop_deep_house.wav",
       "file_name": "MDT_128_top_loop_deep_house.wav",
       "file_size_bytes": 992530,
       "duration_seconds": 3.75,
@@ -7113,7 +7113,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/MDT_128_top_loop_technology.wav",
+      "file_path": "samples/MDT_128_top_loop_technology.wav",
       "file_name": "MDT_128_top_loop_technology.wav",
       "file_size_bytes": 992530,
       "duration_seconds": 3.75,
@@ -7172,7 +7172,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/MFA_FA001_Kick_Loop_Utchy_123.wav",
+      "file_path": "samples/MFA_FA001_Kick_Loop_Utchy_123.wav",
       "file_name": "MFA_FA001_Kick_Loop_Utchy_123.wav",
       "file_size_bytes": 2065224,
       "duration_seconds": 7.805,
@@ -7235,7 +7235,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/Miniclip_Ride.wav",
+      "file_path": "samples/Miniclip_Ride.wav",
       "file_name": "Miniclip_Ride.wav",
       "file_size_bytes": 74620,
       "duration_seconds": 0.262,
@@ -7297,7 +7297,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/NA_VDS_130_kick_loop_alias.wav",
+      "file_path": "samples/NA_VDS_130_kick_loop_alias.wav",
       "file_name": "NA_VDS_130_kick_loop_alias.wav",
       "file_size_bytes": 1954064,
       "duration_seconds": 7.385,
@@ -7360,7 +7360,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/PMVM_130_Gm_Bass_Loop_53.wav",
+      "file_path": "samples/PMVM_130_Gm_Bass_Loop_53.wav",
       "file_name": "PMVM_130_Gm_Bass_Loop_53.wav",
       "file_size_bytes": 3908088,
       "duration_seconds": 14.769,
@@ -7422,7 +7422,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/Percs_Loops_DepthShakers_01_Fm_128.wav",
+      "file_path": "samples/Percs_Loops_DepthShakers_01_Fm_128.wav",
       "file_name": "Percs_Loops_DepthShakers_01_Fm_128.wav",
       "file_size_bytes": 1984544,
       "duration_seconds": 7.5,
@@ -7484,7 +7484,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/Percs_Loops_RollerRides_01_Fm_128.wav",
+      "file_path": "samples/Percs_Loops_RollerRides_01_Fm_128.wav",
       "file_name": "Percs_Loops_RollerRides_01_Fm_128.wav",
       "file_size_bytes": 992294,
       "duration_seconds": 3.75,
@@ -7545,7 +7545,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/RKU_C2K_126_vocal_hook_loop_dimension_wet_C#min.wav",
+      "file_path": "samples/RKU_C2K_126_vocal_hook_loop_dimension_wet_C#min.wav",
       "file_name": "RKU_C2K_126_vocal_hook_loop_dimension_wet_C#min.wav",
       "file_size_bytes": 4388648,
       "duration_seconds": 15.238,
@@ -7605,7 +7605,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/RKU_C2K_128_top_loop_cloud_mantra.wav",
+      "file_path": "samples/RKU_C2K_128_top_loop_cloud_mantra.wav",
       "file_name": "RKU_C2K_128_top_loop_cloud_mantra.wav",
       "file_size_bytes": 2160104,
       "duration_seconds": 7.5,
@@ -7664,7 +7664,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/RPN_Classic_909_Hats_Closed_3.wav",
+      "file_path": "samples/RPN_Classic_909_Hats_Closed_3.wav",
       "file_name": "RPN_Classic_909_Hats_Closed_3.wav",
       "file_size_bytes": 79108,
       "duration_seconds": 0.299,
@@ -7725,7 +7725,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/Ride_DT_15.wav",
+      "file_path": "samples/Ride_DT_15.wav",
       "file_name": "Ride_DT_15.wav",
       "file_size_bytes": 86624,
       "duration_seconds": 0.491,
@@ -7785,7 +7785,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/SM43_vth_cst_kck_live_industrial.wav",
+      "file_path": "samples/SM43_vth_cst_kck_live_industrial.wav",
       "file_name": "SM43_vth_cst_kck_live_industrial.wav",
       "file_size_bytes": 113126,
       "duration_seconds": 0.417,
@@ -7846,7 +7846,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/SM43_vth_dsk_kck_live_industrial.wav",
+      "file_path": "samples/SM43_vth_dsk_kck_live_industrial.wav",
       "file_name": "SM43_vth_dsk_kck_live_industrial.wav",
       "file_size_bytes": 84704,
       "duration_seconds": 0.311,
@@ -7907,7 +7907,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/SO_GSP_wood_perc_ramp_one_shot_07.wav",
+      "file_path": "samples/SO_GSP_wood_perc_ramp_one_shot_07.wav",
       "file_name": "SO_GSP_wood_perc_ramp_one_shot_07.wav",
       "file_size_bytes": 89242,
       "duration_seconds": 0.332,
@@ -7968,7 +7968,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/SPINNINTECHNO_clap_tekker_03.wav",
+      "file_path": "samples/SPINNINTECHNO_clap_tekker_03.wav",
       "file_name": "SPINNINTECHNO_clap_tekker_03.wav",
       "file_size_bytes": 796880,
       "duration_seconds": 3.011,
@@ -8029,7 +8029,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/SPLC-3417_FX_Oneshot_Small_Metal_Impact_Hit.wav",
+      "file_path": "samples/SPLC-3417_FX_Oneshot_Small_Metal_Impact_Hit.wav",
       "file_name": "SPLC-3417_FX_Oneshot_Small_Metal_Impact_Hit.wav",
       "file_size_bytes": 1497246,
       "duration_seconds": 2.293,
@@ -8090,7 +8090,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/SS_FFTH_126_kit_05_loop_cruz_fx_riser_phaser.wav",
+      "file_path": "samples/SS_FFTH_126_kit_05_loop_cruz_fx_riser_phaser.wav",
       "file_name": "SS_FFTH_126_kit_05_loop_cruz_fx_riser_phaser.wav",
       "file_size_bytes": 4032080,
       "duration_seconds": 15.238,
@@ -8150,7 +8150,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/STCR2_AA_124_Kick_Loop_Table.wav",
+      "file_path": "samples/STCR2_AA_124_Kick_Loop_Table.wav",
       "file_name": "STCR2_AA_124_Kick_Loop_Table.wav",
       "file_size_bytes": 2051926,
       "duration_seconds": 7.742,
@@ -8212,7 +8212,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/STCR2_MHPT_126_Synth_Bass_Loop_Massive_NO_SC_Amin.wav",
+      "file_path": "samples/STCR2_MHPT_126_Synth_Bass_Loop_Massive_NO_SC_Amin.wav",
       "file_name": "STCR2_MHPT_126_Synth_Bass_Loop_Massive_NO_SC_Amin.wav",
       "file_size_bytes": 4032044,
       "duration_seconds": 15.238,
@@ -8274,7 +8274,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/STCR2_MHPT_128_Kit_Loop_Revolution_Synth_Arp_Amin.wav",
+      "file_path": "samples/STCR2_MHPT_128_Kit_Loop_Revolution_Synth_Arp_Amin.wav",
       "file_name": "STCR2_MHPT_128_Kit_Loop_Revolution_Synth_Arp_Amin.wav",
       "file_size_bytes": 3969044,
       "duration_seconds": 15.0,
@@ -8335,7 +8335,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/STCR2_PMT_128_Kit_Loop_Archer_Arp_Main_Gmin.wav",
+      "file_path": "samples/STCR2_PMT_128_Kit_Loop_Archer_Arp_Main_Gmin.wav",
       "file_name": "STCR2_PMT_128_Kit_Loop_Archer_Arp_Main_Gmin.wav",
       "file_size_bytes": 3975418,
       "duration_seconds": 15.0,
@@ -8395,7 +8395,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/STCR2_PMT_128_Kit_Loop_Archer_Clap.wav",
+      "file_path": "samples/STCR2_PMT_128_Kit_Loop_Archer_Clap.wav",
       "file_name": "STCR2_PMT_128_Kit_Loop_Archer_Clap.wav",
       "file_size_bytes": 1988256,
       "duration_seconds": 7.5,
@@ -8456,7 +8456,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/TA_MK3_DRUM_LOOP_CHERRY_KICK_125.wav",
+      "file_path": "samples/TA_MK3_DRUM_LOOP_CHERRY_KICK_125.wav",
       "file_name": "TA_MK3_DRUM_LOOP_CHERRY_KICK_125.wav",
       "file_size_bytes": 1018962,
       "duration_seconds": 3.84,
@@ -8519,7 +8519,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/TA_MK3_RIDE_ONESHOT_HOT.wav",
+      "file_path": "samples/TA_MK3_RIDE_ONESHOT_HOT.wav",
       "file_name": "TA_MK3_RIDE_ONESHOT_HOT.wav",
       "file_size_bytes": 129338,
       "duration_seconds": 0.479,
@@ -8579,7 +8579,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/TA_MK_RISER_7_124bpm_Gbm.wav",
+      "file_path": "samples/TA_MK_RISER_7_124bpm_Gbm.wav",
       "file_name": "TA_MK_RISER_7_124bpm_Gbm.wav",
       "file_size_bytes": 7169852,
       "duration_seconds": 27.097,
@@ -8639,7 +8639,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/TA_USC_SYNTH_STAB_BEAM_Gm.wav",
+      "file_path": "samples/TA_USC_SYNTH_STAB_BEAM_Gm.wav",
       "file_name": "TA_USC_SYNTH_STAB_BEAM_Gm.wav",
       "file_size_bytes": 553330,
       "duration_seconds": 2.087,
@@ -8700,7 +8700,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/TL_Kicks_OneShots_Kick_05.wav",
+      "file_path": "samples/TL_Kicks_OneShots_Kick_05.wav",
       "file_name": "TL_Kicks_OneShots_Kick_05.wav",
       "file_size_bytes": 93434,
       "duration_seconds": 0.353,
@@ -8761,7 +8761,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/TL_TFX_Impact_OneShot_Hitwave.wav",
+      "file_path": "samples/TL_TFX_Impact_OneShot_Hitwave.wav",
       "file_name": "TL_TFX_Impact_OneShot_Hitwave.wav",
       "file_size_bytes": 1924508,
       "duration_seconds": 7.273,
@@ -8821,7 +8821,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/TL_TFX_Impact_OneShot_Shockwave.wav",
+      "file_path": "samples/TL_TFX_Impact_OneShot_Shockwave.wav",
       "file_name": "TL_TFX_Impact_OneShot_Shockwave.wav",
       "file_size_bytes": 1924508,
       "duration_seconds": 7.273,
@@ -8882,7 +8882,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/T_TSTN_FX_oneshot_impact_galm.wav",
+      "file_path": "samples/T_TSTN_FX_oneshot_impact_galm.wav",
       "file_name": "T_TSTN_FX_oneshot_impact_galm.wav",
       "file_size_bytes": 1984544,
       "duration_seconds": 7.5,
@@ -8942,7 +8942,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/ZEN_ALL_126_drum_loop_top_gravity.wav",
+      "file_path": "samples/ZEN_ALL_126_drum_loop_top_gravity.wav",
       "file_name": "ZEN_ALL_126_drum_loop_top_gravity.wav",
       "file_size_bytes": 4033218,
       "duration_seconds": 15.238,
@@ -9003,7 +9003,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/ZEN_BCN_clap_one_shot_big.wav",
+      "file_path": "samples/ZEN_BCN_clap_one_shot_big.wav",
       "file_name": "ZEN_BCN_clap_one_shot_big.wav",
       "file_size_bytes": 133662,
       "duration_seconds": 0.5,
@@ -9062,7 +9062,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/ZEN_FMT_124_bass_synth_loop_synthetica_Gm.wav",
+      "file_path": "samples/ZEN_FMT_124_bass_synth_loop_synthetica_Gm.wav",
       "file_name": "ZEN_FMT_124_bass_synth_loop_synthetica_Gm.wav",
       "file_size_bytes": 8195330,
       "duration_seconds": 30.968,
@@ -9125,7 +9125,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/ZEN_HMH_123_bass_synth_loop_cyan_Amin.wav",
+      "file_path": "samples/ZEN_HMH_123_bass_synth_loop_cyan_Amin.wav",
       "file_name": "ZEN_HMH_123_bass_synth_loop_cyan_Amin.wav",
       "file_size_bytes": 4131628,
       "duration_seconds": 15.61,
@@ -9187,7 +9187,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/ZEN_HMH_123_bass_synth_loop_desert_sand_Amin.wav",
+      "file_path": "samples/ZEN_HMH_123_bass_synth_loop_desert_sand_Amin.wav",
       "file_name": "ZEN_HMH_123_bass_synth_loop_desert_sand_Amin.wav",
       "file_size_bytes": 4131628,
       "duration_seconds": 15.61,
@@ -9249,7 +9249,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/ZEN_MIST_kick_one_shot_thump.wav",
+      "file_path": "samples/ZEN_MIST_kick_one_shot_thump.wav",
       "file_name": "ZEN_MIST_kick_one_shot_thump.wav",
       "file_size_bytes": 133502,
       "duration_seconds": 0.5,
@@ -9310,7 +9310,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/ZEN_NST_160_kick_bass_loop_fiesta_E.wav",
+      "file_path": "samples/ZEN_NST_160_kick_bass_loop_fiesta_E.wav",
       "file_name": "ZEN_NST_160_kick_bass_loop_fiesta_E.wav",
       "file_size_bytes": 3175454,
       "duration_seconds": 12.0,
@@ -9373,7 +9373,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/ZEN_PUM_hi_hat_open_classic.wav",
+      "file_path": "samples/ZEN_PUM_hi_hat_open_classic.wav",
       "file_name": "ZEN_PUM_hi_hat_open_classic.wav",
       "file_size_bytes": 68666,
       "duration_seconds": 0.254,
@@ -9434,7 +9434,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/ZEN_SOL_hi_hat_open_classic.wav",
+      "file_path": "samples/ZEN_SOL_hi_hat_open_classic.wav",
       "file_name": "ZEN_SOL_hi_hat_open_classic.wav",
       "file_size_bytes": 119916,
       "duration_seconds": 0.448,
@@ -9495,7 +9495,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/ZEN_TIF_ride_one_shot_induction_F#.wav",
+      "file_path": "samples/ZEN_TIF_ride_one_shot_induction_F#.wav",
       "file_name": "ZEN_TIF_ride_one_shot_induction_F#.wav",
       "file_size_bytes": 149944,
       "duration_seconds": 0.5,
@@ -9558,7 +9558,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/ZEN_ZOO_perc_one_shot_conga.wav",
+      "file_path": "samples/ZEN_ZOO_perc_one_shot_conga.wav",
       "file_name": "ZEN_ZOO_perc_one_shot_conga.wav",
       "file_size_bytes": 111514,
       "duration_seconds": 0.417,
@@ -9619,7 +9619,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/atc_stab_dread_Amin.wav",
+      "file_path": "samples/atc_stab_dread_Amin.wav",
       "file_name": "atc_stab_dread_Amin.wav",
       "file_size_bytes": 268142,
       "duration_seconds": 0.991,
@@ -9680,7 +9680,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/au_ride_short.wav",
+      "file_path": "samples/au_ride_short.wav",
       "file_name": "au_ride_short.wav",
       "file_size_bytes": 269312,
       "duration_seconds": 1.0,
@@ -9741,7 +9741,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/bln2_stab_direction_Gm.wav",
+      "file_path": "samples/bln2_stab_direction_Gm.wav",
       "file_name": "bln2_stab_direction_Gm.wav",
       "file_size_bytes": 654416,
       "duration_seconds": 2.473,
@@ -9803,7 +9803,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/bt2_clap_one_shot_mid_claw.wav",
+      "file_path": "samples/bt2_clap_one_shot_mid_claw.wav",
       "file_name": "bt2_clap_one_shot_mid_claw.wav",
       "file_size_bytes": 115964,
       "duration_seconds": 0.438,
@@ -9864,7 +9864,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/bt2_clap_one_shot_mid_karn.wav",
+      "file_path": "samples/bt2_clap_one_shot_mid_karn.wav",
       "file_name": "bt2_clap_one_shot_mid_karn.wav",
       "file_size_bytes": 93866,
       "duration_seconds": 0.354,
@@ -9924,7 +9924,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/bt2_clap_one_shot_mid_plant.wav",
+      "file_path": "samples/bt2_clap_one_shot_mid_plant.wav",
       "file_name": "bt2_clap_one_shot_mid_plant.wav",
       "file_size_bytes": 100748,
       "duration_seconds": 0.38,
@@ -9984,7 +9984,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/bts2_hat_one_shot_open_high_synthetic_hot.wav",
+      "file_path": "samples/bts2_hat_one_shot_open_high_synthetic_hot.wav",
       "file_name": "bts2_hat_one_shot_open_high_synthetic_hot.wav",
       "file_size_bytes": 104960,
       "duration_seconds": 0.397,
@@ -10045,7 +10045,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/dmht_fx_one_shot_alien.wav",
+      "file_path": "samples/dmht_fx_one_shot_alien.wav",
       "file_name": "dmht_fx_one_shot_alien.wav",
       "file_size_bytes": 728312,
       "duration_seconds": 2.752,
@@ -10106,7 +10106,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/dmth2_chord_one_shot_dubb_Gmin.wav",
+      "file_path": "samples/dmth2_chord_one_shot_dubb_Gmin.wav",
       "file_name": "dmth2_chord_one_shot_dubb_Gmin.wav",
       "file_size_bytes": 337222,
       "duration_seconds": 1.274,
@@ -10168,7 +10168,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/ff_brt_128_kit_loop_ground_synth_Gmin.wav",
+      "file_path": "samples/ff_brt_128_kit_loop_ground_synth_Gmin.wav",
       "file_name": "ff_brt_128_kit_loop_ground_synth_Gmin.wav",
       "file_size_bytes": 1984242,
       "duration_seconds": 7.498,
@@ -10230,7 +10230,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/ff_brt_clap_one_shot_axle.wav",
+      "file_path": "samples/ff_brt_clap_one_shot_axle.wav",
       "file_name": "ff_brt_clap_one_shot_axle.wav",
       "file_size_bytes": 122172,
       "duration_seconds": 0.461,
@@ -10289,7 +10289,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/ff_brt_clap_one_shot_cracked.wav",
+      "file_path": "samples/ff_brt_clap_one_shot_cracked.wav",
       "file_name": "ff_brt_clap_one_shot_cracked.wav",
       "file_size_bytes": 61530,
       "duration_seconds": 0.232,
@@ -10348,7 +10348,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/ff_brt_clap_one_shot_ink.wav",
+      "file_path": "samples/ff_brt_clap_one_shot_ink.wav",
       "file_name": "ff_brt_clap_one_shot_ink.wav",
       "file_size_bytes": 74616,
       "duration_seconds": 0.281,
@@ -10408,7 +10408,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/ff_dh_synth_one_shot_stab_Gm.wav",
+      "file_path": "samples/ff_dh_synth_one_shot_stab_Gm.wav",
       "file_name": "ff_dh_synth_one_shot_stab_Gm.wav",
       "file_size_bytes": 984602,
       "duration_seconds": 3.721,
@@ -10470,7 +10470,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/ff_dmt_127_atmosphere_loop_focus_Bmin.wav",
+      "file_path": "samples/ff_dmt_127_atmosphere_loop_focus_Bmin.wav",
       "file_name": "ff_dmt_127_atmosphere_loop_focus_Bmin.wav",
       "file_size_bytes": 2000278,
       "duration_seconds": 7.559,
@@ -10530,7 +10530,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/ff_dmt_127_atmosphere_loop_sting_D#min.wav",
+      "file_path": "samples/ff_dmt_127_atmosphere_loop_sting_D#min.wav",
       "file_name": "ff_dmt_127_atmosphere_loop_sting_D#min.wav",
       "file_size_bytes": 2000278,
       "duration_seconds": 7.559,
@@ -10590,7 +10590,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/ff_dwt_130_atmosphere_loop_ripper.wav",
+      "file_path": "samples/ff_dwt_130_atmosphere_loop_ripper.wav",
       "file_name": "ff_dwt_130_atmosphere_loop_ripper.wav",
       "file_size_bytes": 977142,
       "duration_seconds": 3.692,
@@ -10649,7 +10649,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/ff_rhtt_hat_synthetic_open_shift.wav",
+      "file_path": "samples/ff_rhtt_hat_synthetic_open_shift.wav",
       "file_name": "ff_rhtt_hat_synthetic_open_shift.wav",
       "file_size_bytes": 230100,
       "duration_seconds": 0.869,
@@ -10710,7 +10710,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/ff_tt_128_bass_loop_art_Amin.wav",
+      "file_path": "samples/ff_tt_128_bass_loop_art_Amin.wav",
       "file_name": "ff_tt_128_bass_loop_art_Amin.wav",
       "file_size_bytes": 1984770,
       "duration_seconds": 7.5,
@@ -10771,7 +10771,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/hdth_125fx_snarebuild2.wav",
+      "file_path": "samples/hdth_125fx_snarebuild2.wav",
       "file_name": "hdth_125fx_snarebuild2.wav",
       "file_size_bytes": 3048236,
       "duration_seconds": 11.52,
@@ -10832,7 +10832,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/lft2_vocal_loop_backroom_128.wav",
+      "file_path": "samples/lft2_vocal_loop_backroom_128.wav",
       "file_name": "lft2_vocal_loop_backroom_128.wav",
       "file_size_bytes": 3974228,
       "duration_seconds": 15.0,
@@ -10892,7 +10892,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/ms2_stb_hacienda_Am.wav",
+      "file_path": "samples/ms2_stb_hacienda_Am.wav",
       "file_name": "ms2_stb_hacienda_Am.wav",
       "file_size_bytes": 427916,
       "duration_seconds": 1.617,
@@ -10954,7 +10954,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/nw_ob_140_fx_alarm_long_build.wav",
+      "file_path": "samples/nw_ob_140_fx_alarm_long_build.wav",
       "file_name": "nw_ob_140_fx_alarm_long_build.wav",
       "file_size_bytes": 3634270,
       "duration_seconds": 13.714,
@@ -11014,7 +11014,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/rit_stab_beak_Gm.wav",
+      "file_path": "samples/rit_stab_beak_Gm.wav",
       "file_name": "rit_stab_beak_Gm.wav",
       "file_size_bytes": 135156,
       "duration_seconds": 0.5,
@@ -11075,7 +11075,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/rit_stab_plonk_Gm.wav",
+      "file_path": "samples/rit_stab_plonk_Gm.wav",
       "file_name": "rit_stab_plonk_Gm.wav",
       "file_size_bytes": 117164,
       "duration_seconds": 0.433,
@@ -11136,7 +11136,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/shs_dr_synth_stab_chord_one_shot_Salud_Am.wav",
+      "file_path": "samples/shs_dr_synth_stab_chord_one_shot_Salud_Am.wav",
       "file_name": "shs_dr_synth_stab_chord_one_shot_Salud_Am.wav",
       "file_size_bytes": 1033946,
       "duration_seconds": 3.905,
@@ -11197,7 +11197,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/ta_et3_drum_loop_full_moron_128.wav",
+      "file_path": "samples/ta_et3_drum_loop_full_moron_128.wav",
       "file_name": "ta_et3_drum_loop_full_moron_128.wav",
       "file_size_bytes": 992294,
       "duration_seconds": 3.75,
@@ -11257,7 +11257,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/ta_et3_drum_loop_full_mouda_128.wav",
+      "file_path": "samples/ta_et3_drum_loop_full_mouda_128.wav",
       "file_name": "ta_et3_drum_loop_full_mouda_128.wav",
       "file_size_bytes": 992294,
       "duration_seconds": 3.75,
@@ -11316,7 +11316,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/ta_et3_drum_loop_top_distro_128.wav",
+      "file_path": "samples/ta_et3_drum_loop_top_distro_128.wav",
       "file_name": "ta_et3_drum_loop_top_distro_128.wav",
       "file_size_bytes": 992294,
       "duration_seconds": 3.75,
@@ -11375,7 +11375,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/tcl_balothe_Gmin.wav",
+      "file_path": "samples/tcl_balothe_Gmin.wav",
       "file_name": "tcl_balothe_Gmin.wav",
       "file_size_bytes": 236646,
       "duration_seconds": 0.891,
@@ -11436,7 +11436,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/tcl_cussion_Amin.wav",
+      "file_path": "samples/tcl_cussion_Amin.wav",
       "file_name": "tcl_cussion_Amin.wav",
       "file_size_bytes": 100050,
       "duration_seconds": 0.375,
@@ -11497,7 +11497,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/tcl_molten_Amin.wav",
+      "file_path": "samples/tcl_molten_Amin.wav",
       "file_name": "tcl_molten_Amin.wav",
       "file_size_bytes": 303090,
       "duration_seconds": 1.142,
@@ -11558,7 +11558,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/tt3_128_kit_loop_chalk_synth_Amin.wav",
+      "file_path": "samples/tt3_128_kit_loop_chalk_synth_Amin.wav",
       "file_name": "tt3_128_kit_loop_chalk_synth_Amin.wav",
       "file_size_bytes": 1984660,
       "duration_seconds": 7.5,
@@ -11618,7 +11618,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/tt3_128_percussion_loop_rank.wav",
+      "file_path": "samples/tt3_128_percussion_loop_rank.wav",
       "file_name": "tt3_128_percussion_loop_rank.wav",
       "file_size_bytes": 1984660,
       "duration_seconds": 7.5,
@@ -11678,7 +11678,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/tth_fx125_dope.wav",
+      "file_path": "samples/tth_fx125_dope.wav",
       "file_name": "tth_fx125_dope.wav",
       "file_size_bytes": 2067860,
       "duration_seconds": 7.68,
@@ -11740,7 +11740,7 @@
       ]
     },
     {
-      "file_path": "/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/wl_stab_green_004_Am.wav",
+      "file_path": "samples/wl_stab_green_004_Am.wav",
       "file_name": "wl_stab_green_004_Am.wav",
       "file_size_bytes": 530338,
       "duration_seconds": 2.0,

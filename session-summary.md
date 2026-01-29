@@ -1,190 +1,179 @@
-# Dynamic Techno Track - Session Summary
+# Subterranean Techno Track - Session Summary
 
-**Date:** 2026-01-18
-**Tempo:** 130 BPM
-**Key:** G Minor
-**Style:** Charlotte de Witte / Adam Beyer inspired peak-time techno
+**Date:** 2026-01-19
+**Tempo:** 133 BPM
+**Key:** G Minor (root G0/G1 = MIDI 31/43)
+**Style:** Dark industrial techno with vocal elements
+**Time Signature:** 4/4
 
 ---
 
-## ✅ COMPLETED
+## Track Overview (19 Tracks)
 
-### Track Setup (10 Tracks)
-| # | Track Name | Device | Sample Loaded | Purpose |
-|---|------------|--------|---------------|---------|
-| 0 | Kick | Simpler | BOS_HDT_Kick_One_Shot_Rumble.wav | 4/4 anchor |
-| 1 | Rolling Bass | Operator | (Synthesized) | 16th note rolling bass |
-| 2 | Sub Rumble | Simpler | (TBD) | Atmospheric rumble |
-| 3 | Closed Hats | Simpler | MARS_909_closed_hat_clean.wav | Main groove |
-| 4 | Open Hats | Simpler | DS_HT_drum_hat_open_rave.wav | Syncopated energy |
-| 5 | Ride Cymbal | Simpler | AT_TR_Ride_One_Shot_Metal.wav | Peak energy |
-| 6 | Stab Lead | Simpler | 073_Chord_Hit_Gm_-_TECHNOC_Zenhiser.wav | Melodic motif |
-| 7 | Atmosphere | Simpler | 001_Stab_Low__FX_Trail__126bpm_Am.wav | Dark pad |
-| 8 | Riser FX | Simpler | 125BPM_LONG_RISER_01.wav | Build tension |
-| 9 | Perc Loop | Simpler | (TBD) | Additional percussion |
+| # | Track Name | Type | Device | Purpose |
+|---|------------|------|--------|---------|
+| 0 | KICK | MIDI | Kick 909 1 (Simpler) + Saturator + EQ Eight | 4/4 foundation |
+| 1 | BASS | MIDI | Operator + Auto Filter + Saturator + Phaser-Flanger + Compressor + EQ Eight | Rolling 16th note bass |
+| 2 | CLOSED-HATS | MIDI | Hihat Closed DMX (Simpler) + Auto Filter + Saturator | Tight rhythmic drive |
+| 3 | DRIVING-HATS | MIDI | DS HH + Auto Filter | Additional hat layer |
+| 4 | OPEN-HATS | MIDI | Hihat Open Brim (Simpler) + Auto Filter + Saturator | Syncopated swing |
+| 5 | PERCUSSION | MIDI | Clap 909 (Simpler) + Auto Filter + Saturator | Polymetric clap loops |
+| 6 | STAB | MIDI | Wavetable + Auto Filter + Saturator + Erosion + Reverb | Filtered stab hits |
+| 7 | RIDE | MIDI | Cymbal 808 Full (Simpler) + Auto Filter + Saturator + Compressor + Overdrive | Peak energy cymbal |
+| 8 | ATMOSPHERE | MIDI | ff_dwt_130_atmosphere_loop_ripper (Simpler) | Dark ambient texture |
+| 9 | FX-RISER | MIDI | 125BPM_LONG_RISER_01 (Simpler) | Build tension |
+| 10 | FX-HITS | MIDI | Impact Layered (Simpler) | Impact hits for transitions |
+| 11 | FX-DOWNLIFT | MIDI | Impact Layered Reversed (Simpler) | Reverse impact FX |
+| 12 | VOCAL | MIDI | tts_Subte_20260119_102731 (Simpler) + Reverb + EQ Eight | Main vocal sample |
+| 13 | VOCAL-2 | MIDI | tts_Deepe_20260119_104627 (Simpler) + Reverb | Secondary vocal |
+| 14 | NOISE-SWEEP | MIDI | Hyper Riser (Rack) | Noise sweep riser |
+| 15 | INDUSTRIAL | MIDI | Dark Swarm (Rack) + Auto Filter | Industrial texture |
+| 16 | DING | MIDI | Bells Damped (Operator) + Auto Filter + Saturator | Bell motif |
+| 17 | NOISE-RISER | MIDI | Operator + Auto Filter | Noise riser synth |
+| 18 | DARK-TEXTURE | MIDI | MPE Objectivism Drone (Rack) | Dark drone texture |
 
 ### Return Tracks (3 FX Sends)
-- **A - Reverb Hall:** Built-in Reverb (for space)
-- **B - Delay 1/8:** Simple Delay (for depth)
-- **C - Wash Out:** Effect rack for transitions (to be configured)
-
-### Scene Arrangement (8 Scenes for Dynamic Performance)
-
-| Scene | Name | Active Elements | Energy Level |
-|-------|------|-----------------|--------------|
-| 0 | IMMEDIATE IMPACT | Kick, Bass, Rumble, Closed Hats, Atmosphere | HIGH - Hard start |
-| 1 | ADD TEXTURE | + Open Hats, Stab Lead | BUILDING |
-| 2 | ENERGY RISE | + Ride Cymbal, Riser FX | RISING |
-| 3 | FAKE BREAKDOWN | Hats, Atmosphere only (NO kick/bass) | TENSION |
-| 4 | SUBVERT DROP | Kick returns (filtered), minimal | SUBVERTED |
-| 5 | PEAK MOMENT | ALL ELEMENTS | MAXIMUM |
-| 6 | EVOLVE | Variation, not cooldown | SUSTAINED |
-| 7 | OUTRO TOOL | Kick, Bass, minimal hats | DJ FRIENDLY |
-
-### MIDI Clips Created
-
-All core tracks have clips with MIDI notes:
-- ✅ Kick: 4/4 pattern (4 notes per bar)
-- ✅ Rolling Bass: 16th note off-beats (12 notes per bar, G1 = 43)
-- ✅ Closed Hats: 16th notes with velocity variation (16 notes per bar)
-- ✅ Open Hats: Syncopated upbeat pattern (4 notes per bar)
-- ✅ Ride Cymbal: 8th notes with alternating velocity (8 notes per bar)
-- ✅ Stab Lead: Simple two-hit motif (2 notes per bar on G3 = 55)
-- ✅ Atmosphere Pad: Long sustained note (16-bar pad)
-- ✅ Riser FX: Long sustained note (16-bar build)
-
-Clips have been strategically duplicated across scenes to create the dynamic flow.
+- **A-REVERB:** 2x Reverb (stacked for depth)
+- **B-DELAY:** 2x Delay (layered)
+- **C-Delay Throw:** Delay (for throws/transitions)
 
 ---
 
-## 🎚️ NEXT STEPS (In Order)
+## Scene Arrangement (8 Scenes)
 
-### 1. Processing & Effects
-- [ ] **Track 0 (Kick):** Add EQ Eight (low cut @30Hz, bell cut @200-300Hz), Compressor (4:1, slow attack), Utility (bass mono <120Hz)
-- [ ] **Track 1 (Bass):** Add EQ Eight (low cut @40Hz, high cut @500Hz), Sidechain Compressor from Kick
-- [ ] **Track 3-5 (Hats/Ride):** Add EQ (high-pass @2kHz), light sidechain from Kick
-- [ ] **Track 6 (Stab):** Add Filter with automation for movement
-- [ ] **Track 7 (Atmosphere):** Add heavy reverb send, low-pass filter
-- [ ] **Configure Return C (Wash Out):** Create Audio Effect Rack with dry/wet chains, macro-mapped crossfade + filter sweep
-
-### 2. Advanced Techniques
-- [ ] **Micro-Timing:**
-  - Kick: 0ms (grid-locked) ✓
-  - Closed Hats: Nudge -8ms (rushing feel)
-  - Open Hats: Nudge +15ms (dragging swing)
-- [ ] **Groove Application:** Apply MPC Swing 55-57% to hats
-- [ ] **Phase Alignment:** Check kick & bass phase relationship
-- [ ] **Volume Automation:** Fade atmosphere in/out between scenes
-- [ ] **Filter Automation:** Sweep on stab lead and bass for movement
-
-### 3. Mixing & Mastering
-- [ ] Create **Low-End Bus** (group Kick + Bass), add glue compressor
-- [ ] Create **Drum Bus** (group all drums), add compression
-- [ ] **Master Chain:**
-  - V-Shape EQ (automate for builds)
-  - SSL-style bus compressor (2:1, slow attack)
-  - Hard clipper (1-2dB shave)
-  - Limiter (ceiling -0.3dB)
-- [ ] Force all <100Hz to MONO (mono compatibility check)
-
-### 4. Performance Script
-- [ ] Create `perform_set.py` using `AbletonOSC/` library
-- [ ] Map scene triggers to keys (1-8)
-- [ ] Create macros for:
-  - Filter sweeps (group automation)
-  - Reverb throws
-  - Wash Out rack transitions
-  - Individual track mutes/unmutes
-  - Riser triggers
-- [ ] Add tempo automation (±2-3 BPM for live feel)
+| Scene | Clip Slot | Active Tracks | Purpose |
+|-------|-----------|---------------|---------|
+| **S1** | 0 | Kick, Bass, Closed-Hats, Vocal, Industrial, Ding | Immediate impact intro |
+| **S2** | 1 | Kick, Bass, Closed-Hats, Driving-Hats, Open-Hats, Stab, FX-Hits, Ding | Building groove |
+| **S3** | 2 | Kick, Bass, Closed-Hats, Driving-Hats, Open-Hats, Stab, Vocal, Noise-Riser, Ding | Rising tension |
+| **S4** | 3 | Bass, Closed-Hats, Open-Hats, Stab, Atmosphere, Vocal, Noise-Sweep, Industrial, Ding | Breakdown (no kick) |
+| **S5** | 4 | FX-Riser, FX-Hits, Vocal, Noise-Riser, Ding | False drop tension |
+| **S6** | 5 | Kick, Bass, Closed-Hats, Driving-Hats, Open-Hats, Percussion, Stab, Ride, Atmosphere, FX-Hits, FX-Downlift, Vocal, Industrial, Dark-Texture, Ding | PEAK ENERGY |
+| **S7** | 6 | Kick, Bass, Driving-Hats, Open-Hats, Percussion, Ride, Atmosphere, FX-Hits, FX-Downlift, Vocal, Industrial, Ding | Evolving energy |
+| **S8** | 7 | Kick, Bass, Closed-Hats, Industrial, Ding | Outro (DJ tool) |
 
 ---
 
-## 📋 MANUAL TASKS REMAINING
+## Musical Content
 
-### Track 2: Sub Rumble Setup
-**Current Status:** Has Simpler loaded but no sample
+### Key Signature: G Minor
+**Scale degrees used:** G, A, Bb, C, D, Eb, F (natural minor)
 
-**Option 1 - Resampling (Recommended):**
-1. Set Track 2 input to "Resampling"
-2. Play kick track with heavy reverb
-3. Record the reverb tail
-4. Add: Reverb (100% wet, 2.5s decay) → Distortion → Low-pass @150Hz
+### Bass Line (Track 1)
+- **Root note:** G (MIDI 31 = G0, MIDI 43 = G1)
+- **Pattern:** Rolling 16th notes with velocity variation (105-118)
+- **Pitches used:** G0(31), A0(33), Bb0(34), C1(36), D1(38), Eb1(39), F1(41), G1(43)
+- **Duration:** 0.25 beats (16th notes)
+- **Clip lengths:** 32-192 beats depending on section
 
-**Option 2 - Use Atmospheric Sample:**
-- Sample already copied: `001_Stab_Low__FX_Trail__126bpm_Am_-_PULSETECHNO_Zenhiser.wav`
-- Load into Simpler on Track 2
-- Set loop ON, add low-pass filter
+### Kick Pattern (Track 0)
+- **Pattern:** Four-on-the-floor with velocity accents
+- **Pitch:** C3 (MIDI 60) - sample trigger
+- **Velocity pattern:** 127 (downbeat) → 115 → 105 → 110 (creates groove)
+- **Fills:** Extra 8th note hits at end of 8-bar phrases (velocity 100)
+- **Duration:** 0.5 beats per hit
 
-### Track 1: Operator Bass Configuration
-Configure the Operator on Track 1 for rolling sub bass:
-1. Algorithm: Simple (carrier only)
-2. Oscillator A: Sine wave (main sub)
-3. Oscillator B: Triangle wave (30% mix)
-4. Tune to G1 (MIDI note 43, ~49Hz)
-5. Envelope: Quick attack (0-5ms), medium sustain
-6. Optional: Low-pass filter @500Hz
+### Stab Pattern (Track 6)
+- **Pitches:** G3 (MIDI 55) + Bb3 (MIDI 58)
+- **Pattern:** Syncopated offbeat hits (start_time on .5 positions)
+- **Duration:** 0.25 beats (short stabs)
+- **Velocity variation:** 85-100
 
-### Return C: Wash Out Rack
-Create an Audio Effect Rack on Return C with:
-- **Dry Chain:** Direct signal
-- **Wet Chain:** High-pass filter (20Hz → 5kHz sweep) + Delay (feedback 70%) + Reverb (long hall)
-- **Macro:** Map to crossfade between dry/wet + filter cutoff
-
----
-
-## 🎵 PHILOSOPHY
-
-This arrangement breaks from traditional techno structure (Intro→Build→Drop→Breakdown):
-
-### Instead, we use:
-- **Immediate Impact:** Start hard from bar 1
-- **Overlapping Energy Waves:** Constant addition/removal of elements
-- **Tension Manipulation:** Fake breakdowns, delayed drops
-- **Ear Candy Throughout:** FX, risers, textures woven in/out every 8-16 bars
-- **No Dead Spots:** Always evolving, never static
-
-### Inspired by:
-- Charlotte de Witte's relentless energy and textural depth
-- Adam Beyer's hypnotic grooves and dynamic filtering
-- Peak-time Drumcode aesthetic
+### Percussion (Track 5)
+- **Polymetric patterns:** 5/16 and 7/16 loops for hypnotic phase shifting
+- **S6-Perc-5-16:** 5-beat loop
+- **S7-Perc-7-16:** 7-beat loop
 
 ---
 
-## 📁 Project Files
+## Processing Chains
 
-**Location:** `/Users/chasehughes/Documents/AbletonComposer/`
+### Common signal chain pattern:
+Most tracks use: **Simpler/Synth → Auto Filter → Saturator**
 
-**Key Files:**
-- `to_do.md` - Detailed production plan
-- `manual-requirements.md` - Tasks requiring manual Ableton work
-- `composer-instructions.md` - Updated workflow guidelines
-- `samples/` - All audio samples (9 files, 9.8MB)
-- `perform_set.py` - Reference performance script template
+### Bass chain (Track 1):
+Operator → Auto Filter → Saturator → Phaser-Flanger → Compressor → EQ Eight
 
-**Sample Library Source:**
-`/Users/chasehughes/Documents/Github-hughes7370/SoundAnalyst/samples/`
+### Kick chain (Track 0):
+Simpler (909 sample) → Saturator → EQ Eight
 
----
+### Ride chain (Track 7):
+Simpler → Auto Filter → Saturator → Compressor → Overdrive
 
-## ✨ SUCCESS METRICS
-
-- [x] 130 BPM session configured
-- [x] 10 tracks created and named
-- [x] All Simpler devices loaded
-- [x] Samples copied to project folder
-- [x] MIDI clips created with proper note patterns
-- [x] 8 scenes named and arranged
-- [x] Clips strategically placed across scenes
-- [x] Return tracks configured
-- [ ] Processing chains applied
-- [ ] Micro-timing adjustments made
-- [ ] Performance script created
-
-**Estimated Time to Complete:** 1-2 hours of manual work for processing, mixing, and fine-tuning.
-
-**Current Status:** READY FOR TESTING & REFINEMENT
+### Vocal chain (Track 12):
+Simpler (TTS vocal) → Reverb → EQ Eight
 
 ---
 
-**Last Updated:** 2026-01-18 21:35
+## Clip Lengths by Section
+
+| Section | Standard Length | Extended Length |
+|---------|-----------------|-----------------|
+| Intro/Build | 128 beats (32 bars) | - |
+| Breakdown | 64 beats (16 bars) | 128 beats |
+| Peak | 192 beats (48 bars) | - |
+| Polymetric | 5, 7, 16, 32 beats | Custom loops |
+| Outro | 128 beats (32 bars) | - |
+
+---
+
+## Technical Notes
+
+### Velocity Dynamics
+- **Kick:** 105-127 range (4-step pattern per bar)
+- **Bass:** 105-118 range (humanized)
+- **Stabs:** 85-100 range (accent on main hits)
+- **Hats:** Varied per clip for different energy levels
+
+### Timing/Groove
+- Kick: Grid-locked for punch
+- Hats: Various swing patterns per scene
+- Polymetric percussion for hypnotic phase relationships
+
+### Sample Sources
+- **Vocals:** ElevenLabs TTS (tts_Subte, tts_Deepe)
+- **Drum samples:** 909, 808, DMX sources
+- **Atmosphere:** ff_dwt_130 loop
+- **FX:** Impact layers, risers
+
+---
+
+## Currently Playing (Scene 7)
+
+As of session capture, the following clips are active:
+- S7-Kick-Evolve (192 beats)
+- S7-Bass-Fifth (32 beats)
+- S7-Hats-Offbeat (32 beats)
+- S7-OpenHat-Syncopated (32 beats)
+- S7-Perc-7-16 (7 beats - polymetric)
+- S6-Ride-Full (192 beats)
+- S7-Atmos-Evolve (192 beats)
+- S7-Impact-Evolve (192 beats)
+- S7-Downlift (192 beats)
+- S7-Vocal-Evolve (192 beats)
+- S7-Industrial-Doubled (32 beats)
+- DING slot 6 (16 beats)
+
+---
+
+## Project Philosophy
+
+### Dark Industrial Techno Aesthetic
+- Heavy use of distortion/saturation throughout
+- Filtered elements for movement
+- Industrial textures (Dark Swarm rack)
+- TTS vocals for otherworldly feel
+- Polymetric percussion for hypnotic loops
+
+### Dynamic Arrangement
+- Immediate hard impact (no soft intro)
+- Constant element addition/subtraction
+- Fake breakdown at Scene 4
+- Extended peak section (Scene 6)
+- DJ-friendly outro tool
+
+---
+
+**Last Updated:** 2026-01-19
+**Master Volume:** 58.5%
+**Tempo:** 133 BPM

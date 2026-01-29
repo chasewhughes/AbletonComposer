@@ -83,3 +83,5 @@ Notes:
 4. If downloads are necessary, add them to out project folder to keep everything organized and add it to Ableton via the mcp if you can, if not , then document it for manual to do.
 
 5. When setting up tracks and clips, be sure that they include notes when you set them up in accordance with teh protocol document, otherwise you will insert the clips but they will not sound.
+
+(claude --dangerously-skip-permissions)

@@ -30,13 +30,15 @@ All v12 features retained:
 - Track-specific tightness
 """
 
+import os
 import sys
 import time
 import math
 import random
 
-sys.path.insert(0, '/Users/chasehughes/Documents/AbletonComposer/AbletonOSC')
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+from live_bridge import LiveQuery, DeviceParams, db_to_live_fader  # noqa: E402 (also puts vendored pythonosc on sys.path)
 from pythonosc.udp_client import SimpleUDPClient
 
 # =============================================================================
@@ -209,7 +211,7 @@ class SpectralCarver:
         if self._peak_lead_active and self._texture_active:
             if not self._texture_carved_for_lead:
                 try:
-                    ctl.set_device_param(
+                    ctl.set_param_norm(
                         T["DARK_TEXTURE"],
                         DEVICE["DARK_TEXTURE_EQ"],
                         EQ8["BAND2_FREQ"],
@@ -230,7 +232,7 @@ class SpectralCarver:
         elif self._vocal_active and self._texture_active:
             if not self._texture_carved_for_vocal:
                 try:
-                    ctl.set_device_param(
+                    ctl.set_param_norm(
                         T["DARK_TEXTURE"],
                         DEVICE["DARK_TEXTURE_EQ"],
                         EQ8["BAND2_FREQ"],
@@ -280,7 +282,7 @@ class SpectralCarver:
         if self._vocal_active and self._industrial_active:
             if not self._industrial_carved:
                 try:
-                    ctl.set_device_param(
+                    ctl.set_param_norm(
                         T["INDUSTRIAL"],
                         DEVICE["INDUSTRIAL_FILTER"],
                         "Frequency",
@@ -293,7 +295,7 @@ class SpectralCarver:
         else:
             if self._industrial_carved:
                 try:
-                    ctl.set_device_param(
+                    ctl.set_param_norm(
                         T["INDUSTRIAL"],
                         DEVICE["INDUSTRIAL_FILTER"],
                         "Frequency",
@@ -308,14 +310,14 @@ class SpectralCarver:
         if kick_level_db > -8:
             if not self._subbass_ducked:
                 try:
-                    ctl.set_device_param(T["SUB_BASS"], 1, "Drive", 0.3)
+                    ctl.set_param_norm(T["SUB_BASS"], 1, "Drive", 0.3)
                 except:
                     pass
                 self._subbass_ducked = True
         else:
             if self._subbass_ducked:
                 try:
-                    ctl.set_device_param(T["SUB_BASS"], 1, "Drive", 0.5)
+                    ctl.set_param_norm(T["SUB_BASS"], 1, "Drive", 0.5)
                 except:
                     pass
                 self._subbass_ducked = False
@@ -461,9 +463,9 @@ class VocalMangler:
         freq_wobble = random.uniform(-0.02, 0.02)
         freq = max(0.15, min(0.75, self._filter_freq + freq_wobble))
         drive = self._filter_drive + (self._degradation * 3)
-        ctl.set_device_param(track_idx, device_idx, "Filter Freq", freq)
-        ctl.set_device_param(track_idx, device_idx, "Filter Res", self._filter_res)
-        ctl.set_device_param(track_idx, device_idx, "Filter Drive", min(24, drive))
+        ctl.set_param_norm(track_idx, device_idx, "Filter Freq", freq)
+        ctl.set_param_norm(track_idx, device_idx, "Filter Res", self._filter_res)
+        ctl.set_param_native(track_idx, device_idx, "Filter Drive", min(24, drive))
 
     def mangle_formant(self, ctl, track_idx, device_idx=0, intensity=0.5):
         t = time.time()
@@ -471,8 +473,8 @@ class VocalMangler:
         formant_lfo += math.sin(t * 1.3) * 0.06 * intensity
         target_freq = max(0.15, min(0.75, self._filter_freq + formant_lfo))
         target_res = max(0.3, min(0.9, self._filter_res + (formant_lfo * 0.3)))
-        ctl.set_device_param(track_idx, device_idx, "Filter Freq", target_freq)
-        ctl.set_device_param(track_idx, device_idx, "Filter Res", target_res)
+        ctl.set_param_norm(track_idx, device_idx, "Filter Freq", target_freq)
+        ctl.set_param_norm(track_idx, device_idx, "Filter Res", target_res)
 
     def should_fire(self, bar):
         self._bars_since_last_fire += 1
@@ -600,7 +602,7 @@ class SpectralBreather:
         current = self._filter_states.get(track_name, base_cutoff)
         new_cutoff = H.drunk_walk(current, target_cutoff, step_size=0.03, wobble=0.01)
         self._filter_states[track_name] = new_cutoff
-        ctl.set_device_param(track_idx, device_idx, "Filter Freq", new_cutoff)
+        ctl.set_param_norm(track_idx, device_idx, "Filter Freq", new_cutoff)
         return new_cutoff
 
 
@@ -695,16 +697,16 @@ class ChaosEngine:
             intensity = self._degradation_level
         drive = intensity * 0.6
         drive_jitter = H.jitter(drive, 0.05)
-        ctl.set_device_param(track_idx, device_idx, "Filter Drive", drive_jitter * 24)
+        ctl.set_param_native(track_idx, device_idx, "Filter Drive", drive_jitter * 24)
 
     def degrade_hats(self, ctl, hat_tracks, device_idx=1):
         drive = self._hat_degradation * 0.5
         for track_idx in hat_tracks:
             drive_val = H.jitter(drive, 0.03)
-            ctl.set_device_param(track_idx, device_idx, "Filter Drive", drive_val * 24)
+            ctl.set_param_native(track_idx, device_idx, "Filter Drive", drive_val * 24)
             if self._hat_degradation > 0.5:
                 filter_close = (self._hat_degradation - 0.5) * 0.3
-                ctl.set_device_param(track_idx, 0, "Filter Freq", 1.0 - filter_close)
+                ctl.set_param_norm(track_idx, 0, "Filter Freq", 1.0 - filter_close)
 
     def glitch(self, ctl, track_idx, probability=0.05):
         if H.chance(probability * self._degradation_level):
@@ -820,6 +822,7 @@ HAT_TRACKS = [T["CLOSED_HATS"], T["DRIVING_HATS"], T["OPEN_HATS"], T["RIDE"]]
 class AbletonController:
     def __init__(self, host="127.0.0.1", port=11000):
         self.client = SimpleUDPClient(host, port)
+        self.params = DeviceParams(LiveQuery(host))
 
     def send(self, address, *args):
         self.client.send_message(address, list(args))
@@ -846,17 +849,34 @@ class AbletonController:
         self.client.send_message("/live/track/set/volume", [track, max(0.0, min(1.0, vol))])
 
     def set_volume_db(self, track, db):
-        vol = 0.0 if db <= -70 else min(1.0, 10 ** (db / 20.0))
-        self.set_volume(track, vol)
+        self.set_volume(track, db_to_live_fader(db))
 
     def set_send(self, track, send_idx, level):
         self.send("/live/track/set/send", track, send_idx, max(0.0, min(1.0, level)))
 
-    def set_device_param(self, track, device, param, value):
+    def set_param_native(self, track, device, param, value):
+        """Set a device parameter in its own native units (Hz, dB, ...)."""
         if isinstance(param, str):
             self.send("/live/device/set/parameter/value_by_name", track, device, param, value)
         else:
             self.send("/live/device/set/parameter/value", track, device, param, value)
+
+    def set_param_norm(self, track, device, param, norm):
+        """Set a device parameter by normalized 0-1 position of its range.
+
+        Queries and caches the device's min/max via AbletonOSC. Falls back to
+        a raw send (old, likely-wrong behavior) only if Live is unreachable,
+        and warns when it does.
+        """
+        scaled = self.params.scale(track, device, param, norm)
+        if scaled is None:
+            self.set_param_native(track, device, param, norm)
+            return
+        idx, value = scaled
+        self.send("/live/device/set/parameter/value", track, device, idx, value)
+
+    # Back-compat alias: legacy call sites that pass native-unit values.
+    set_device_param = set_param_native
 
     def kill_reverb(self, track, send_idx=0):
         self.set_send(track, send_idx, 0.0)

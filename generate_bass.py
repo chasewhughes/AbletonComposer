@@ -1,4 +1,5 @@
 import json
+import os
 
 def generate_bass_line():
     """
@@ -57,9 +58,10 @@ def generate_bass_line():
                 velocity = 90 + (bar_num // 2) * 2
                 velocity = min(velocity, 105)
             else:  # Second half (beats 64-128): dense, higher velocity
-                pattern = patterns_second_half[((bar_num - 64) // 2) % len(patterns_second_half)]
+                # second half starts at beat 64 == bar_num 8 (bar_num counts 8-beat units)
+                pattern = patterns_second_half[((bar_num - 8) // 2) % len(patterns_second_half)]
                 # Gradually increase velocity from 105 to 120
-                velocity = 105 + ((bar_num - 64) // 2) * 2
+                velocity = 105 + (bar_num - 8) * 2
                 velocity = min(velocity, 120)
 
             note = pattern[eighth_in_bar]
@@ -85,12 +87,14 @@ if __name__ == "__main__":
     print(json_output)
 
     # Also save to file
-    with open('/Users/chasehughes/Documents/AbletonComposer/half_time_bass.json', 'w') as f:
+    out_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'output')
+    os.makedirs(out_dir, exist_ok=True)
+    with open(os.path.join(out_dir, 'half_time_bass.json'), 'w') as f:
         f.write(json_output)
 
     print(f"\n# Generated {len(bass_notes)} notes total", file=__import__('sys').stderr)
-    first_half = [n for n in bass_notes if n['start_time'] < 32]
-    second_half = [n for n in bass_notes if n['start_time'] >= 32]
+    first_half = [n for n in bass_notes if n['start_time'] < 64]
+    second_half = [n for n in bass_notes if n['start_time'] >= 64]
     print(f"# First half (0-64 beats): {len(first_half)} notes", file=__import__('sys').stderr)
     print(f"# Second half (64-128 beats): {len(second_half)} notes", file=__import__('sys').stderr)
     print(f"# Velocity range first half: {min(n['velocity'] for n in first_half)}-{max(n['velocity'] for n in first_half)}", file=__import__('sys').stderr)

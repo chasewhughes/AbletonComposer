@@ -20,8 +20,10 @@ import time
 import math
 import threading
 
-# Add the local AbletonOSC path for pythonosc
-sys.path.insert(0, '/Users/chasehughes/Documents/AbletonComposer/AbletonOSC')
+# live_bridge puts the vendored AbletonOSC/pythonosc on sys.path
+import os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from live_bridge import db_to_live_fader
 
 from pythonosc.udp_client import UDPClient
 from pythonosc.osc_message_builder import OscMessageBuilder
@@ -70,10 +72,8 @@ class AbletonOSCClient:
 
 # --- UTILITIES ---
 def db_to_vol(db: float) -> float:
-    """Convert dB to Ableton's 0.0-1.0 volume scale."""
-    if db <= -70.0:
-        return 0.0
-    return max(0.0, min(10 ** (db / 20.0), 1.0))
+    """Convert dB to Ableton's 0.0-1.0 fader value (Live taper, 0.85 = 0 dB)."""
+    return db_to_live_fader(db)
 
 
 def sleep_beats(beats: float):

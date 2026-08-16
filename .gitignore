@@ -32,3 +32,16 @@ build/
 # Audio files
 *.mp3
 *.mp3.asd
+reference-audio/*/
+reference-audio/previews/*.m4a
+output/
+.venv-listen/
+.models/
+.cache/
+listen-reports/
+
+# Derived from copyrighted reference audio; regenerate with calibrate.py build
+reference-audio/calibration.json
+reference-audio/clap_refs.npz
+reference-audio/fingerprints.json
+reference-audio/tonal_reference.json

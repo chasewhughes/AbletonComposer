@@ -4,6 +4,7 @@ Generate two high-energy 192-beat rolling bass patterns in G minor for peak tech
 """
 
 import json
+import os
 import random
 
 # G minor scale pitches
@@ -187,8 +188,10 @@ def main():
     }
 
     # Save files
-    s6_path = "/Users/chasehughes/Documents/AbletonComposer/peak_bass_s6.json"
-    s7_path = "/Users/chasehughes/Documents/AbletonComposer/peak_bass_s7.json"
+    out_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
+    os.makedirs(out_dir, exist_ok=True)
+    s6_path = os.path.join(out_dir, "peak_bass_s6.json")
+    s7_path = os.path.join(out_dir, "peak_bass_s7.json")
 
     with open(s6_path, 'w') as f:
         json.dump(s6_data, f, indent=2)

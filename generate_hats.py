@@ -2,6 +2,7 @@
 """Generate 8 humanized hi-hat patterns for techno track."""
 
 import json
+import os
 import random
 
 def add_note(notes, start_time, velocity, pitch=60, duration=0.2, mute=False):
@@ -346,7 +347,8 @@ def main():
         ("hats_s8.json", "S8-Hats-Minimal", generate_s8),
     ]
 
-    base_path = "/Users/chasehughes/Documents/AbletonComposer"
+    base_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")
+    os.makedirs(base_path, exist_ok=True)
 
     for filename, name, generator in patterns:
         data = generator()

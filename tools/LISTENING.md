@@ -1,0 +1,109 @@
+# The listening loop
+
+`tools/listen.py` is how the composer model hears a render. One command, every
+ear, one report directory the model Reads before deciding the next move.
+
+```
+.venv-listen/bin/python tools/calibrate.py build              # ONCE, first
+.venv-listen/bin/python tools/listen.py "<render.wav|aif>"    # full pass
+.venv-listen/bin/python tools/listen.py "<render>" --quick    # DSP only, ~5 s
+.venv-listen/bin/python tools/listen.py refs                  # rebuild CLAP ref cache
+```
+
+Output: `listen-reports/<name>/report.md` + `report.json` + PNGs.
+**The iteration protocol is: render → listen → Read report.md → Read the PNGs
+→ decide → change one thing → render again.**
+
+## Build the calibration first
+
+Nothing else is trustworthy without it. `calibrate.py build` runs the whole
+pipeline over the reference records and stores what THEY measure, per context
+(mix / drums / bass / other), in `reference-audio/calibration.json`. Every
+threshold in the report then comes from real music instead of a guess.
+
+Why it matters, in the two failures that motivated it:
+
+- A drums-only render was reported `MUDDY +6.7 dB sub`. It was being compared
+  against full commercial masters. `listen.py` now infers what the render IS
+  (`calibrate.infer_context`) and judges a drum loop against reference drum
+  stems.
+- `lowend_control 0.01` looked like a fault worth chasing for weeks. The
+  Drumcode masters score **0.07** on that axis themselves. It carries no
+  gradient and the report now says so instead of flagging it.
+
+Measured on the 9 Drumcode singles (18 × 60 s windows):
+
+| CLAP axis | mix median [p10..p90] | verdict |
+|---|---|---|
+| groove | 1.00 [0.98..1.00] | discriminative — a low score is real |
+| kick_power | 0.98 [0.91..1.00] | discriminative |
+| top_end | 0.48 [0.26..0.79] | discriminative |
+| space | 0.11 [0.05..0.40] | weak, low by nature |
+| lowend_control | 0.07 [0.02..0.41] | **pinned to the bad pole — ignore** |
+| production / energy | 1.00 [1.00..1.00] | **saturated — no gradient** |
+
+Reference crest is **8.4 dB [7.6..11.1]** and LUFS **−7.3 [−8.5..−5.6]**. The
+old hand-written "crest 10–14, LUFS −11.5" targets were wrong in both
+directions.
+
+## The ears
+
+| ear | tool | what it hears |
+|---|---|---|
+| mix | `ears.py` | crushed / dark / muddy / congested / kick dominance — thresholds from the corpus, in the render's own context |
+| critic | `critic.py` | techno_core, novelty, verdict vs 38 fingerprints |
+| semantic | `semantic_ear.py` (CLAP) | quality axes **beside what real records score**, subgenre character, moods, cosine to the reference records |
+| groove | `groove_ear.py` | the pattern as a 32-step text grid per role, swing, microtiming |
+| groove A/B | `groove_ref.py` | your grid vs the reference grids: per-role F1, which steps you miss, and how much the records agree with **each other** (~0.85) so the number is readable |
+| harmony | `harmony_ear.py` | key, the notes each stem actually plays, kick tuning, clashes, detuning in cents |
+| bar | `bar_ear.py` | per-bar deviation from the loop — localizes "bar 9", which CLAP's 10 s windows cannot |
+| structure + visual | `structure_ear.py`, `spectro.py` | section timeline, overview/stems/loop-zoom PNGs |
+
+## Reading the groove grid
+
+```
+KICK |X... X... X... X...|X... X... X... X...|
+HATS |..X. ..X. ..X. ..X.|..X. ..X. ..X. ..X.|
+```
+Each char = one 16th, 2 bars folded across the whole render. X strong, x weak,
+o intermittent (probability hit), · rare. On the drum stem rows are
+KICK/PERC/HATS; on a full-mix fallback they are LOW/MID/HIGH because the
+bassline lives in the low band. Upper rows are kick-bleed-suppressed by a
+self-calibrating flux-ratio test — trust X, treat isolated · as noise.
+
+Sanity check: on the reference drum stems the KICK row lands on exactly **8
+hits per 2 bars** in 14 of 18 excerpts. If your references read busier than
+that, the onset detector has regressed.
+
+## Method rule
+
+**Run every new metric over the reference corpus as a control before believing
+it.** A "sub collision" detector written here flagged a render convincingly,
+then flagged 15 of 19 real Drumcode excerpts harder — and its beat frequencies
+turned out to be exact multiples of the FFT bin spacing. It was measuring the
+analysis window, not the music. It was deleted. Anything that fires on most
+real records is a bug, not a finding.
+
+## Environment
+
+- venv: `.venv-listen` (torch, demucs, laion_clap on numpy 2.x — do NOT
+  `pip install laion-clap` here, it was installed `--no-deps` deliberately).
+- CLAP checkpoint: `.models/music_audioset_epoch_15_esc_90.14.pt` (2.35 GB).
+- Stems cache: `.cache/stems/<sha1>/`; reference excerpts `.cache/refexcerpt/`.
+- Reference embeddings: `reference-audio/clap_refs.npz` (rebuild via
+  `listen.py refs`, then `critic.py build`).
+- The calibration and CLAP caches are gitignored: they are derived from
+  copyrighted reference audio and are regenerated by `calibrate.py build`.
+
+## Gotchas
+
+- laion_clap pins numpy<2 in metadata but runs fine on numpy 2.5; reinstalling
+  it normally will downgrade numpy and break librosa/numba.
+- CLAP embeddings of >10 s clips are non-deterministic (random 10 s crop);
+  `semantic_ear` always slices exact 10 s windows for reproducibility.
+- Demucs always outputs 44.1 kHz regardless of input rate; renders are 48 k.
+  It runs on `mps` when available, falling back to cpu.
+- CLAP model load is ~40 s per process — batch listens in one process when
+  scoring many renders.
+- Any groove reference grid built before the `ROLE_GATE` prominence fix is
+  invalid (kick rows were ~3× too busy). Rebuild with `calibrate.py build`.

@@ -59,6 +59,68 @@ directions.
 | harmony | `harmony_ear.py` | key, the notes each stem actually plays, kick tuning, clashes, detuning in cents |
 | bar | `bar_ear.py` | per-bar deviation from the loop — localizes "bar 9", which CLAP's 10 s windows cannot |
 | structure + visual | `structure_ear.py`, `spectro.py` | section timeline, overview/stems/loop-zoom PNGs |
+| one-shot | `oneshot_bank.py` | a forged sample vs the real kicks/hats/perc cut out of the reference drum stems |
+
+## One-shots
+
+```
+.venv-listen/bin/python tools/oneshot_bank.py build [--clap]   # ~15 s, +4 min with CLAP
+.venv-listen/bin/python tools/oneshot_bank.py show [role]
+.venv-listen/bin/python tools/oneshot_bank.py profile [--role=kick] [--clap] a.wav b.wav
+```
+
+`build` slices every onset out of the 18 reference drum stems, keeps the ones
+whose own band balance agrees with the band that detected them, and stores
+median / robust-sigma / p10 / p90 per feature per role — the same shape
+`calibrate.py` stores for mixes. 1408 kicks, 797 hats, 1505 perc from 9 records.
+`profile_sample.py` is now a front end onto it; its hand-written `TARGETS` are
+gone.
+
+The corpus, measured (this is what a Drumcode kick actually is):
+
+| | kick | hat | perc |
+|---|---|---|---|
+| sub 20-60 Hz | **74.5%** | 0.0% | 0.1% |
+| high 6-12k | 2.2% | **57.8%** | 12.5% |
+| peak freq | 43 Hz | 6.8 kHz | 191 Hz |
+| decay to −20 dB | 221 ms | 34 ms | 81 ms |
+| crest | 7.2 dB | 18.8 dB | 14.2 dB |
+
+Note band shares are **power**, not summed magnitude. The old `TARGETS`
+("kick = 30% sub, 4% high") were fitted to summed magnitude, which gives wide
+bands a structural bin-count advantage; the same kick reads 18.6% sub / 31.7%
+high that way. That is why the old targets looked plausible and were wrong.
+
+### What it can and cannot answer
+
+Leave-one-**record**-out control (per excerpt would validate memorisation — two
+excerpts of one track share the same kick sample):
+
+| role | n | typicality median | p90 | p99 | axes ≥2.5σ p90 |
+|---|---|---|---|---|---|
+| kick | 1408 | 0.73 | 1.50 | 6.07 | 4 |
+| hat | 797 | 0.81 | 1.47 | 1.83 | 4 |
+| perc | 1505 | 0.66 | 1.17 | 2.21 | 5 |
+
+No record is systematically flagged; the widest is the DNA record's kicks.
+
+**Honest limits, all measured:**
+
+- No bell, no duduk, no vocal exists in a drum stem. `--role=bell` returns
+  NO REFERENCE DATA and raw numbers, not a score against the nearest bin.
+- `perc` is a catch-all and its distribution is huge: the perc test also calls
+  **97% of reference HATS** "inside perc". An INSIDE-perc verdict means "not
+  obviously broken". The kick test is specific (0% of hats, 0% of percs).
+- The DSP layer cannot tell a tonal bell from a tonal tom. `forged_metal_bell`
+  scores 0.77 typicality against reference percussion while sitting 4-5σ out on
+  noisiness, crest and rolloff — and real percussion hits reach 5 outside axes
+  at p90, so neither statistic catches it.
+- The CLAP nearest-neighbour score separates "cut from a mastered record" from
+  "synthesised here" and nothing finer: **all 14** Forged2 samples fall below
+  the reference range, the good ones included. Only the per-prompt deltas carry
+  a gradient. CLAP's raw prompt ranking is not readable either — reference
+  hi-hats score +0.253 on "a wooden percussion block" and +0.136 on "a hi-hat
+  cymbal" — which is exactly why the deltas are calibrated on reference hits.
 
 ## Reading the groove grid
 

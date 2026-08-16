@@ -43,6 +43,30 @@ Three findings from building it, recorded so they are not re-discovered:
    There is no bell, no duduk, no vocal in a Drumcode drum stem. `profile` says
    so out loud for anything outside the three roles, and refuses to score a bell
    against the percussion distribution just because that is the nearest bin.
+
+WHAT THIS TOOL HONESTLY CANNOT DO, all four measured rather than assumed:
+
+ a. It cannot judge a bell, a duduk, or anything else the reference drums do
+    not contain. `--role=bell` gets a NO REFERENCE DATA block and raw numbers.
+
+ b. The 'perc' role is a catch-all and its distribution is correspondingly
+    huge. Measured: the perc test also calls 97% of reference HATS "inside
+    perc". So an INSIDE-perc verdict means "not obviously broken", not "this is
+    good percussion", and the report says that in those words. The kick test is
+    specific (0% of hats, 0% of percs) and the hat test nearly so (0% / 12%).
+
+ c. `oddity` is a median and therefore blind to a sound that matches its role
+    on most axes and differs on the two or three that define it —
+    forged_metal_bell scores 0.77 against reference percussion while sitting
+    4-5 sigma out on noisiness, crest and rolloff. `n_outside` exists to cover
+    that, and is calibrated the same way. Neither statistic catches the bell:
+    real percussion hits reach 5 outside axes at p90 and the bell has 4. The
+    DSP layer genuinely cannot tell a tonal bell from a tonal tom.
+
+ d. The CLAP nearest-neighbour score separates "cut from a mastered record"
+    from "synthesised here" and nothing finer — all 14 forged samples in
+    Forged2 fall below the reference range, including the good ones. Only the
+    per-prompt DELTAS carry a usable gradient.
 """
 import argparse
 import collections
@@ -587,7 +611,7 @@ def _build_clap(by_role, bank, per_role=120, verbose=True):
         return
     if verbose:
         print(f"\nCLAP over up to {per_role} hits per role (model load ~40 s)")
-    embs, labels, roles = [], [], []
+    embs, labels, roles, tracks = [], [], [], []
     for role in BANK_ROLES:
         hits = [h for h in by_role.get(role, []) if "audio" in h]
         if not hits:
@@ -600,12 +624,14 @@ def _build_clap(by_role, bank, per_role=120, verbose=True):
         for h in chosen:
             labels.append(f"{role}:{h['excerpt'][:28]}@{h['t']}")
             roles.append(role)
+            tracks.append(h["track"])
         if verbose:
             print(f"  {role:5s} {len(chosen)} embedded")
     if not embs:
         return
     E = np.concatenate(embs, axis=0)
-    np.savez(CLAP_PATH, embs=E, labels=np.array(labels), roles=np.array(roles))
+    np.savez(CLAP_PATH, embs=E, labels=np.array(labels), roles=np.array(roles),
+             tracks=np.array(tracks))
 
     txt = ear.embed_text(MATERIAL_PROMPTS)          # (P, D)
     sims = E @ txt.T                                # (N, P)
@@ -631,9 +657,25 @@ def _build_clap(by_role, bank, per_role=120, verbose=True):
     clap_stats["nn_role_agreement"] = {
         r: round(float(np.mean(nn_role[roles_arr == r] == r)), 4)
         for r in BANK_ROLES if (roles_arr == r).any()}
-    # How similar is a reference hit to OTHER reference hits? This is the
-    # yardstick that makes "your bell scores 0.31 to the corpus" readable.
-    nn = list(S.max(axis=1))
+    # How similar is a reference hit to other reference hits? This is the
+    # yardstick that makes "your bell scores 0.75 to the corpus" readable — and
+    # it MUST exclude the hit's own record.
+    #
+    # The first version did not, and every one of the 14 forged samples came
+    # back "not a sound the reference drums contain", which is the exact
+    # failure mode this project has a method rule about. The reason: within one
+    # record the same kick sample repeats every bar, so a hit's nearest
+    # neighbour is literally itself four beats later, and the reference bar sat
+    # at 0.958 [0.890..0.981]. A sample from outside the corpus can never reach
+    # that and the test was vacuous. Excluding the own record asks the right
+    # question — how close does a hit get to the nearest hit from a DIFFERENT
+    # record — which is the same question a forged sample is being asked.
+    tracks_arr = np.array(tracks)
+    Sx = S.copy()
+    for t in set(tracks):
+        m = tracks_arr == t
+        Sx[np.ix_(m, m)] = -1
+    nn = list(Sx.max(axis=1))
     bank["clap"] = {
         "path": CLAP_PATH.name,
         "prompts": MATERIAL_PROMPTS,
@@ -644,10 +686,13 @@ def _build_clap(by_role, bank, per_role=120, verbose=True):
                     "p90": round(float(np.percentile(nn, 90)), 4)},
     }
     if verbose:
-        print(f"  reference hit -> nearest other reference hit: "
+        print(f"  reference hit -> nearest hit from ANOTHER record: "
               f"{bank['clap']['self_nn']['median']:.3f} "
               f"[{bank['clap']['self_nn']['p10']:.3f}.."
               f"{bank['clap']['self_nn']['p90']:.3f}]")
+        print(f"  same-role nearest neighbour: " +
+              ", ".join(f"{k} {100 * v:.0f}%"
+                        for k, v in clap_stats["nn_role_agreement"].items()))
 
 
 # ------------------------------------------------------------------- reading
@@ -882,11 +927,12 @@ def profile(path, bank, role=None, clap_ear=None, verbose=True):
                      " test also calls " +
                      ", ".join(f"{100 * v:.0f}% of reference {k}s"
                                for k, v in acc.items()) + " 'inside'")
-            if worst >= 0.5:
+            if worst >= 0.5 and od <= hb["oddity_p99"]:
                 L.append(f"  -> this distribution is too wide to be an "
-                         f"identity test. An INSIDE verdict here means 'not "
-                         f"obviously broken', NOT 'this is a good "
-                         f"{role_used}'. Read the per-axis z above instead.")
+                         f"identity test, so the verdict above is weak "
+                         f"evidence: it means 'not obviously broken', NOT "
+                         f"'this is a good {role_used}'. Read the per-axis z "
+                         f"and the CLAP section instead.")
             out["cross_role_accept"] = acc
 
         if n_out > hb["n_outside_p99"]:
@@ -983,12 +1029,24 @@ def clap_reading(seg, bank, ear):
                  + " — so the embedding is hearing the drum, not the padding.)")
     L.append(f"  nearest reference drum hit: {nn:.3f} "
              f"({labels[int(order[0])]})")
-    L.append(f"    a reference hit's nearest OTHER reference hit scores "
-             f"{self_nn['median']:.3f} [{self_nn['p10']:.3f}.."
-             f"{self_nn['p90']:.3f}]")
+    L.append(f"    a reference hit reaches {self_nn['median']:.3f} "
+             f"[{self_nn['p10']:.3f}..{self_nn['p90']:.3f}] to the nearest hit "
+             f"from a DIFFERENT record")
     if nn < self_nn["p10"]:
-        L.append("    -> below the range real drum hits reach with each other: "
-                 "this is not a sound the reference drum stems contain.")
+        # Deliberately hedged. This number was checked against all 14 forged
+        # samples in Forged2 and EVERY one of them lands below p10 — including
+        # the ones the DSP bank calls perfectly normal. It is separating
+        # "cut from a mastered record" (bus compression, room, demucs
+        # artefacts) from "synthesised here as a dry one-shot", which is a
+        # provenance difference, not a quality one. Reporting it as "not a
+        # sound the corpus contains" would be a detector that fires on
+        # everything, which this project has a rule about.
+        L.append("    -> below that range. Careful: every dry forged one-shot "
+                 "tested lands below it too, because reference hits carry "
+                 "mastering and room that a raw sample does not. This axis "
+                 "separates recorded-from-a-record from made-here; it does "
+                 "NOT rank quality. The prompt deltas below do carry a "
+                 "gradient.")
 
     # Raw prompt scores are NOT rankable: reference hi-hats score +0.253 on
     # "a wooden percussion block" and only +0.136 on "a hi-hat cymbal". CLAP's

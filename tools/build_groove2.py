@@ -54,12 +54,20 @@ VOICES = {
     "RUMBLE": ("forged_rumble_tectonic", -27.0, 4.38, 1.60),
     "CHAT":   ("forged_hat_static",       -8.0, 0.14, None),
     "OHAT":   ("forged_hat_wide",        -11.0, 1.43, 0.30),
-    "PERC":   ("forged_metal_slag",      -12.0, 1.77, 1.20),
+    # +3 dB: 25.4% of its energy is 350-2000 Hz and it plays 36 times a loop,
+    # so it is the only voice that can add SUSTAINED mid rather than 3 hits.
+    "PERC":   ("forged_metal_slag",       -9.0, 1.77, 1.20),
     "TICK":   ("forged_metal_tick",       -9.0, 0.24, None),
     "BELL":   ("forged_metal_bell",      -16.0, 1.24, None),
     "WOOD":   ("forged_wood_bone",       -13.0, 0.54, None),
     "SCRAPE": ("forged_scrape_grain",    -14.0, 1.70, None),
-    "THROAT": ("forged_throat_spectral", -20.0, 4.32, None),
+    # The wildcard, and the only voice in the kit that is mostly midrange
+    # (65.9% of its energy in 350-2000 Hz, where the next best is 32.7%). It
+    # sat at -20 dB playing once in sixteen bars, which is why the mix
+    # measured a scooped mid -4.6 dB under every reference AND why the one
+    # deliberately strange sound in the kit was inaudible. Raising it fixes a
+    # measured hole and commits to the odd axis at the same time.
+    "THROAT": ("forged_throat_spectral", -11.0, 4.32, None),
     "HAZE":   ("forged_haze_bed",        -26.0, 4.21, None),
 }
 ACID_DB = -10.0
@@ -93,7 +101,7 @@ SECTIONS = {
     "KICK":   (1, 16), "SUB": (1, 16), "CHAT": (1, 16),
     "OHAT":   (3, 16), "PERC": (5, 16), "TICK": (9, 16),
     "WOOD":   (7, 14), "BELL": (9, 16), "SCRAPE": (11, 16),
-    "RUMBLE": (1, 16), "THROAT": (9, 16), "HAZE": (1, 16),
+    "RUMBLE": (1, 16), "THROAT": (5, 16), "HAZE": (1, 16),
     "ACID":   (5, 16), "BASS": (1, 16),
 }
 
@@ -278,6 +286,15 @@ def sub_pattern(bars):
     return []
 
 
+# Simpler pitch-shifts a sample, so the note number sets the sounding pitch.
+# Measured at ROOT (C3): forged_throat_spectral sounds A# (98% concentration)
+# and forged_metal_bell sounds G#. The track is in A minor (A C D E G), so
+# both sat exactly a semitone above a scale tone — the harmony ear caught the
+# throat as "bass A against other A#, a major 7th, present 24% of the time"
+# the moment it was loud enough to matter. -1 puts the throat on A and the
+# bell on G, and their second notes on C.
+TUNE = {"THROAT": -1, "BELL": -1}
+
 A1 = 33          # 55.0 Hz — the kick measures A1 +6 cents, so the bass agrees
 G1 = 31          # the acid's other degree, an octave down
 
@@ -375,8 +392,9 @@ def bell_pattern(bars):
     """Tuned metal motif every 2 bars: the hypnotic hook."""
     notes = []
     for bar in range(0, bars, 2):
-        notes.append(P.note(ROOT, bar * 4 + 2.5, 1.0, 104, vdev=-8))
-        notes.append(P.note(ROOT + 5, bar * 4 + 3.75, 0.8, 92, vdev=-8))
+        t = TUNE["BELL"]
+        notes.append(P.note(ROOT + t, bar * 4 + 2.5, 1.0, 104, vdev=-8))
+        notes.append(P.note(ROOT + 5 + t, bar * 4 + 3.75, 0.8, 92, vdev=-8))
     return notes
 
 
@@ -411,10 +429,11 @@ def scrape_pattern(bars, rng):
 
 
 def throat_pattern(bars):
-    """The wildcard tonal hook: 4.3 s long, so every 8 bars, never stacked."""
+    """The wildcard tonal hook. 4.3 s is 2.4 bars at 133 BPM, so every 4 bars
+    is the tightest spacing that never stacks it into a drone."""
     notes = []
-    for i, bar in enumerate(range(0, bars, 8)):
-        pitch = ROOT + (0 if i % 2 == 0 else 3)
+    for i, bar in enumerate(range(0, bars, 4)):
+        pitch = ROOT + TUNE["THROAT"] + (0 if i % 2 == 0 else 3)
         notes.append(P.note(pitch, bar * 4 + 3.0, 3.0, 96, vdev=-6))
     return notes
 

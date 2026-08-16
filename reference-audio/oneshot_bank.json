@@ -1,5 +1,5 @@
 {
- "built_at": "2026-08-16 18:21",
+ "built_at": "2026-08-16 18:34",
  "excerpts": [
   "Adam_Beyer_Mark_Reeve_-_Love_Within_-_Drumcode_-_DC349_KLICK__101s_60s",
   "Adam_Beyer_Mark_Reeve_-_Love_Within_-_Drumcode_-_DC349_KLICK__116s_30s",
@@ -105268,12 +105268,97 @@
       "p90": 0.1468
      }
     }
+   },
+   "all": {
+    "n": 360,
+    "prompt": {
+     "a kick drum": {
+      "median": 0.2305,
+      "p10": 0.1191,
+      "p90": 0.3225
+     },
+     "a hi-hat cymbal": {
+      "median": 0.1223,
+      "p10": 0.0196,
+      "p90": 0.1956
+     },
+     "a snare drum": {
+      "median": 0.2069,
+      "p10": 0.129,
+      "p90": 0.31
+     },
+     "a clap": {
+      "median": 0.0745,
+      "p10": 0.0014,
+      "p90": 0.1516
+     },
+     "a tom drum": {
+      "median": 0.1644,
+      "p10": 0.037,
+      "p90": 0.2537
+     },
+     "a ride cymbal": {
+      "median": 0.0975,
+      "p10": -0.0099,
+      "p90": 0.206
+     },
+     "a metallic bell": {
+      "median": -0.0251,
+      "p10": -0.0915,
+      "p90": 0.0469
+     },
+     "a struck metal object": {
+      "median": 0.0633,
+      "p10": -0.0134,
+      "p90": 0.1246
+     },
+     "a wooden percussion block": {
+      "median": 0.1982,
+      "p10": 0.0997,
+      "p90": 0.288
+     },
+     "a bowed string instrument": {
+      "median": -0.0686,
+      "p10": -0.1461,
+      "p90": -0.0133
+     },
+     "a wind instrument": {
+      "median": 0.0128,
+      "p10": -0.0447,
+      "p90": 0.0611
+     },
+     "a human voice": {
+      "median": -0.0133,
+      "p10": -0.0872,
+      "p90": 0.0428
+     },
+     "white noise": {
+      "median": 0.0045,
+      "p10": -0.079,
+      "p90": 0.0785
+     },
+     "a synthesizer tone": {
+      "median": 0.0093,
+      "p10": -0.0688,
+      "p90": 0.0802
+     },
+     "a bass note": {
+      "median": 0.0917,
+      "p10": 0.0216,
+      "p90": 0.148
+     }
+    }
+   },
+   "nn_role_agreement": {
+    "kick": 1.0,
+    "hat": 1.0,
+    "perc": 0.975
    }
   },
   "self_nn": {
-   "median": 0.9579,
-   "p10": 0.8905,
-   "p90": 0.9807
+   "median": 0.929,
+   "p10": 0.8527,
+   "p90": 0.958
   }
  }
 }

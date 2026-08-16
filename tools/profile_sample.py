@@ -1,57 +1,66 @@
 #!/usr/bin/env python3
-"""Band profile of a one-shot, against the target for its role.
+"""Band profile of a one-shot — now a thin front end onto `oneshot_bank.py`.
 
-Forging a sample is only half the job; the other half is checking that the
-chain moved energy the way it was supposed to. A kick that gains 120-350 Hz is
-a worse kick no matter how good the chain looked on paper.
+This used to hold a TARGETS dict: hand-written band-share percentages for
+"kick", "hat" and "perc" that somebody guessed. Two things were wrong with it.
+
+  1. It could not answer the question it existed for. "Nothing tells me whether
+     forged_metal_bell is a good bell" — and a target table with three roles in
+     it never could.
+  2. The numbers were wrong anyway. The shares were summed linear STFT
+     magnitude, which hands wide bands a structural advantage (20-60 Hz is 4
+     bins at n_fft=4096, 2-6 kHz is 371). Under that measure a real Drumcode
+     kick reads 18.6% sub / 31.7% high; measured as ENERGY it is 74.5% sub /
+     2.2% high. The old kick target of "30% sub, 4% high" was fitted to the
+     artefact.
+
+`oneshot_bank.py` replaces both: it cuts real kicks, hats and percussion out of
+the reference drum stems and reports a candidate as z-scores against them.
+Everything below just keeps the old command line working.
+
+    tools/profile_sample.py [--role=kick] sample.wav [more.wav ...]
 """
-import os
+import pathlib
 import sys
 
-import librosa
-import numpy as np
+TOOLS = pathlib.Path(__file__).resolve().parent
+sys.path.insert(0, str(TOOLS))
 
-BANDS = [("sub", 20, 60), ("bass", 60, 120), ("lowmid", 120, 350),
-         ("mid", 350, 2000), ("himid", 2000, 6000), ("high", 6000, 16000)]
-# role -> target share % per band, from the raw-source and reference survey
-TARGETS = {
-    "kick": {"sub": 30, "bass": 22, "lowmid": 16, "mid": 20, "himid": 8, "high": 4},
-    "hat": {"sub": 1, "bass": 1, "lowmid": 3, "mid": 15, "himid": 35, "high": 45},
-    "perc": {"sub": 2, "bass": 4, "lowmid": 12, "mid": 40, "himid": 27, "high": 15},
-}
+import oneshot_bank  # noqa: E402
 
-
-def profile(path):
-    y, sr = librosa.load(path, sr=44100, mono=True)
-    S = np.abs(librosa.stft(y, n_fft=4096))
-    fr = librosa.fft_frequencies(sr=sr, n_fft=4096)
-    m = S.sum(axis=1)
-    tot = m.sum() + 1e-9
-    return ({n: 100 * m[(fr >= lo) & (fr < hi)].sum() / tot for n, lo, hi in BANDS},
-            float(fr[m.argmax()]), len(y) / sr)
+# Kept so old callers importing BANDS keep working; the live definition of the
+# bands is ears.BANDS, which oneshot_bank uses.
+import ears  # noqa: E402
+BANDS = ears.BANDS
 
 
 def main():
-    role = None
-    paths = []
+    role, paths, clap = None, [], False
     for a in sys.argv[1:]:
         if a.startswith("--role="):
             role = a.split("=", 1)[1]
+        elif a == "--clap":
+            clap = True
         else:
             paths.append(a)
-    tgt = TARGETS.get(role)
-    hdr = f"{'sample':30s}" + "".join(f"{b[0]:>9s}" for b in BANDS) + f"{'peak':>8s}{'dur':>7s}"
-    print(hdr)
-    if tgt:
-        print(f"{'TARGET (' + role + ')':30s}" +
-              "".join(f"{tgt.get(b[0], 0):8.0f}%" for b in BANDS))
-    for p in paths:
-        bands, peak, dur = profile(p)
-        row = "".join(f"{bands[b[0]]:8.1f}%" for b in BANDS)
-        print(f"{os.path.basename(p)[:29]:30s}{row}{peak:8.0f}{dur:7.2f}")
-        if tgt:
-            dev = "".join(f"{bands[b[0]] - tgt.get(b[0], 0):+8.1f} " for b in BANDS)
-            print(f"{'  delta vs target':30s}{dev}")
+    if not paths:
+        sys.exit(__doc__)
+
+    bank = oneshot_bank.load()
+    if bank is None:
+        sys.exit("no one-shot bank — run:\n"
+                 "  .venv-listen/bin/python tools/oneshot_bank.py build")
+
+    ear = None
+    if clap:
+        import semantic_ear
+        ear = semantic_ear.SemanticEar()
+        ear = ear if ear.available else None
+
+    for i, p in enumerate(paths):
+        if i:
+            print("\n" + "=" * 72 + "\n")
+        oneshot_bank.profile(p, bank, role=role, clap_ear=ear)
 
 
 if __name__ == "__main__":

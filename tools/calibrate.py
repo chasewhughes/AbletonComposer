@@ -28,6 +28,7 @@ context, and store the distribution:
 
 Usage:
   .venv-listen/bin/python tools/calibrate.py build [--windows 2] [--dur 60]
+  .venv-listen/bin/python tools/calibrate.py regroove   # groove grids only
   .venv-listen/bin/python tools/calibrate.py show [context]
   .venv-listen/bin/python tools/calibrate.py compare <render.wav> [--context X]
 """
@@ -229,6 +230,55 @@ def build(windows=WINDOW_FRACTIONS, dur=60.0, do_clap=True, verbose=True):
     return cal
 
 
+def regroove(verbose=True):
+    """Rebuild ONLY calibration["groove_refs"], in place.
+
+    Every change to the onset detector invalidates the stored reference grids
+    — they are that detector's output on the reference drum stems, so a render
+    analysed by the new detector gets diffed against grids made by the old one
+    and the A/B silently compares two different rulers. A full `build` also
+    re-runs CLAP over 72 sources for tens of minutes; this re-runs the ~10
+    seconds that actually changed, off the same cached excerpts and stems.
+    """
+    import librosa
+    import soundfile as sf
+    import stems as stems_mod
+    import groove_ear
+
+    cal = load()
+    if cal is None:
+        sys.exit("no calibration to update — run `calibrate.py build` first")
+    dur = float(cal.data.get("window_s", 60.0))
+    fracs = cal.data.get("window_fractions", list(WINDOW_FRACTIONS))
+
+    refs = []
+    for track in reference_tracks():
+        total = librosa.get_duration(path=str(track))
+        for frac in fracs:
+            offset = max(0.0, min(total - dur, total * frac - dur / 2))
+            label = f"{track.stem[:40]}@{int(offset)}s"
+            wav = excerpt_path(track, offset, dur)
+            if not wav.exists():
+                sys.exit(f"missing cached excerpt {wav.name} — run a full build")
+            try:
+                drums = stems_mod.separate(str(wav), sr=SR, verbose=False)["drums"]
+                g = groove_ear.analyze(drums, SR)
+            except Exception as e:
+                print(f"  {label}: groove failed: {e}")
+                continue
+            refs.append({"label": label, **groove_ear.to_json(g)})
+            if verbose:
+                k = np.array(g["roles"]["KICK"]["prob"])
+                print(f"  {label:46s} KICK {int((k >= 0.4).sum()):2d} hits/2 bars")
+    if not refs:
+        sys.exit("no groove refs rebuilt — refusing to write an empty key")
+    cal.data["groove_refs"] = refs
+    cal.data["groove_refs_built_at"] = time.strftime("%Y-%m-%d %H:%M")
+    CAL_PATH.write_text(json.dumps(cal.data, indent=1))
+    print(f"\n{len(refs)} groove refs -> {CAL_PATH}")
+    return refs
+
+
 def _stat(vals):
     """Median + robust sigma. MAD, not std: with n~18 one atypical record
     should not be able to widen the range until nothing ever looks wrong."""
@@ -401,7 +451,7 @@ def compare_table(cal, flat, context, clap=None):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=("build", "show", "compare"))
+    ap.add_argument("cmd", choices=("build", "regroove", "show", "compare"))
     ap.add_argument("arg", nargs="?")
     ap.add_argument("--windows", type=int, default=len(WINDOW_FRACTIONS))
     ap.add_argument("--dur", type=float, default=60.0)
@@ -413,6 +463,10 @@ def main():
         fr = WINDOW_FRACTIONS if a.windows == len(WINDOW_FRACTIONS) else \
             tuple(np.linspace(0.3, 0.7, a.windows))
         build(windows=fr, dur=a.dur, do_clap=not a.no_clap)
+        return
+
+    if a.cmd == "regroove":
+        regroove()
         return
 
     cal = load()

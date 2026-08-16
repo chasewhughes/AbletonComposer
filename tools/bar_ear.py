@@ -79,7 +79,7 @@ def band_levels(y, sr, edges):
     return out
 
 
-def role_steps(y, sr, edges, bar_len):
+def role_steps(y, sr, edges, bar_len, attack=True):
     """{role: (n_bars, 16) bool} — which 16th of which bar each onset lands on."""
     import groove_ear
     out = {}
@@ -87,7 +87,8 @@ def role_steps(y, sr, edges, bar_len):
     tempo = 4 * 60.0 / bar_len
     for name, lo, hi in ROLES:
         grid = np.zeros((n_bars, 16), dtype=bool)
-        times, _ = groove_ear.band_onsets(y, sr, lo, hi, tempo=tempo, role=name)
+        times, _ = groove_ear.band_onsets(y, sr, lo, hi, tempo=tempo, role=name,
+                                          attack=attack)
         for t in times:
             b = int(np.searchsorted(edges, t) - 1)
             if b < 0 or b >= n_bars:
@@ -105,8 +106,16 @@ def role_steps(y, sr, edges, bar_len):
     return out
 
 
-def analyze(y, sr, tempo, downbeat, beats_t=None):
-    """Per-bar deviation from the loop the piece is repeating."""
+def analyze(y, sr, tempo, downbeat, beats_t=None, drums=None):
+    """Per-bar deviation from the loop the piece is repeating.
+
+    Levels come from `y` (the mix — a bar that loses its bass is a bar-scale
+    event and has to show up), patterns from `drums` when a drum stem is
+    available. They have to come from different sources: groove_ear's KICK
+    detector only tells a kick from a bass note by its attack, and on a mix
+    with a loud sustained sub there is nothing in 25-100 Hz to tell them apart
+    with, so a mix-fed KICK row is a low-band row wearing the kick's name.
+    """
     edges, bar_len = bar_times(y, sr, tempo, downbeat, beats_t)
     n_bars = len(edges) - 1
     if n_bars < 2:
@@ -120,7 +129,8 @@ def analyze(y, sr, tempo, downbeat, beats_t=None):
                    if len(seg) else -99.0)
     rms = np.array(rms)
     levels = band_levels(y, sr, edges)
-    steps = role_steps(y, sr, edges, bar_len)
+    pattern_src = y if drums is None else drums
+    steps = role_steps(pattern_src, sr, edges, bar_len, attack=drums is not None)
 
     # the loop: steps that fire in at least half the bars
     loop = {name: grid.mean(axis=0) >= LOOP_STEP_MIN for name, grid in steps.items()}
@@ -158,7 +168,9 @@ def analyze(y, sr, tempo, downbeat, beats_t=None):
     thresh = float(np.median(devs) + 2.5 * (np.median(np.abs(devs - np.median(devs)))
                                             * 1.4826 + 1e-9))
     outliers = [b for b in bars if b["deviation"] > max(thresh, 0.15)]
-    return {"available": True, "tempo": round(tempo, 1), "bar_len_s": round(bar_len, 3),
+    return {"available": True, "pattern_source": "drum stem" if drums is not None
+            else "full mix (KICK row includes the bassline)",
+            "tempo": round(tempo, 1), "bar_len_s": round(bar_len, 3),
             "n_bars": n_bars, "median_rms_db": round(med_rms, 1),
             "loop": {k: [int(s) for s in np.where(v)[0]] for k, v in loop.items()},
             "bars": bars, "outlier_bars": [b["bar"] for b in outliers],
@@ -204,6 +216,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("render")
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--no-stems", action="store_true")
     a = ap.parse_args()
 
     y, sr = librosa.load(a.render, sr=44100, mono=True)
@@ -211,7 +224,16 @@ def main():
     tempo = groove_ear.fold_tempo(tempo0)
     beats_t = librosa.frames_to_time(beats, sr=sr)
     downbeat = groove_ear.find_downbeat(y, sr, tempo, beats_t)
-    res = analyze(y, sr, tempo, downbeat, beats_t)
+    drums = None
+    if not a.no_stems:                      # the KICK row is only a kick row here
+        try:
+            import stems as stems_mod
+            st = stems_mod.separate(a.render, sr=sr, verbose=False)
+            if float(np.max(np.abs(st["drums"]))) > 1e-4:
+                drums = st["drums"]
+        except Exception as e:
+            print(f"(stems unavailable, patterns from the full mix: {e})")
+    res = analyze(y, sr, tempo, downbeat, beats_t, drums=drums)
     if a.json:
         import json
         print(json.dumps(res, indent=1))

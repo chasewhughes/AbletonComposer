@@ -337,7 +337,8 @@ def listen(render, quick=False, out_root=None):
         src = stems["drums"] if stems is not None and \
             float(np.max(np.abs(stems["drums"]))) > 1e-4 else y
         lab = None if src is not y else ("LOW", "MID", "HIGH")
-        g = groove_ear.analyze(src, SR, tempo_hint=tempo, labels=lab)
+        g = groove_ear.analyze(src, SR, tempo_hint=tempo, labels=lab,
+                               full_mix=src is y)
         data["groove_source"] = "drum stem" if src is not y else \
             "full mix (LOW row includes the bassline, not just kick)"
         data["groove_json"] = groove_ear.to_json(g)
@@ -370,7 +371,11 @@ def listen(render, quick=False, out_root=None):
     # bar-scale localization — CLAP's 10 s windows cannot resolve a 1.8 s bar
     def _bars():
         import bar_ear
-        r = bar_ear.analyze(y, SR, tempo, downbeat, beats_t)
+        # levels from the mix, patterns from the drum stem — same reason the
+        # groove ear prefers the stem: on a mix the KICK row is really a LOW row
+        dr = stems["drums"] if stems is not None and \
+            float(np.max(np.abs(stems["drums"]))) > 1e-4 else None
+        r = bar_ear.analyze(y, SR, tempo, downbeat, beats_t, drums=dr)
         data["bars_text"] = bar_ear.describe(r)
         return {k: v for k, v in r.items() if k != "bars"}
     data["bars"] = _try("bar ear", _bars, log)

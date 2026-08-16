@@ -5,6 +5,7 @@ ear, one report directory the model Reads before deciding the next move.
 
 ```
 .venv-listen/bin/python tools/calibrate.py build              # ONCE, first
+.venv-listen/bin/python tools/calibrate.py regroove           # after ANY onset-detector change
 .venv-listen/bin/python tools/listen.py "<render.wav|aif>"    # full pass
 .venv-listen/bin/python tools/listen.py "<render>" --quick    # DSP only, ~5 s
 .venv-listen/bin/python tools/listen.py refs                  # rebuild CLAP ref cache
@@ -54,7 +55,7 @@ directions.
 | critic | `critic.py` | techno_core, novelty, verdict vs 38 fingerprints |
 | semantic | `semantic_ear.py` (CLAP) | quality axes **beside what real records score**, subgenre character, moods, cosine to the reference records |
 | groove | `groove_ear.py` | the pattern as a 32-step text grid per role, swing, microtiming |
-| groove A/B | `groove_ref.py` | your grid vs the reference grids: per-role F1, which steps you miss, and how much the records agree with **each other** (~0.85) so the number is readable |
+| groove A/B | `groove_ref.py` | your grid vs the reference grids: per-role F1, which steps you miss, and how much the records agree with **each other** (~0.94 since the kick rows stopped counting bass) so the number is readable |
 | harmony | `harmony_ear.py` | key, the notes each stem actually plays, kick tuning, clashes, detuning in cents |
 | bar | `bar_ear.py` | per-bar deviation from the loop — localizes "bar 9", which CLAP's 10 s windows cannot |
 | structure + visual | `structure_ear.py`, `spectro.py` | section timeline, overview/stems/loop-zoom PNGs |
@@ -71,9 +72,19 @@ KICK/PERC/HATS; on a full-mix fallback they are LOW/MID/HIGH because the
 bassline lives in the low band. Upper rows are kick-bleed-suppressed by a
 self-calibrating flux-ratio test — trust X, treat isolated · as noise.
 
+The KICK row is a 25-100 Hz band, so a sub bass sits in it. What keeps it a
+kick row is `groove_ear.ATTACK_GATE`: a kick lifts that band 4-50x in ~35 ms,
+while a sub-bass note and the swell in a kick tail arrive on top of energy
+that is already there and lift it under 2.2x. It is a ratio, so it does not
+care how loud anything is and it works with no bassline at all. It is only
+valid on a **kick channel** — `groove_ear.analyze(..., full_mix=True)` and
+`bar_ear.analyze(..., drums=None)` turn it off, because on a mix with a loud
+sustained sub there is nothing in 25-100 Hz left to separate kick from bass,
+and gating there empties the row instead of cleaning it.
+
 Sanity check: on the reference drum stems the KICK row lands on exactly **8
-hits per 2 bars** in 14 of 18 excerpts. If your references read busier than
-that, the onset detector has regressed.
+hits per 2 bars** in 15 of 18 excerpts, at 1.0-2.2 onsets/s. If your
+references read busier than that, the onset detector has regressed.
 
 ## Method rule
 
@@ -105,5 +116,10 @@ real records is a bug, not a finding.
   It runs on `mps` when available, falling back to cpu.
 - CLAP model load is ~40 s per process — batch listens in one process when
   scoring many renders.
-- Any groove reference grid built before the `ROLE_GATE` prominence fix is
-  invalid (kick rows were ~3× too busy). Rebuild with `calibrate.py build`.
+- Any groove reference grid built before the `ROLE_GATE` prominence fix or the
+  `ATTACK_GATE` kick/bass fix is invalid (kick rows were ~3× too busy). The
+  stored grids ARE the old detector's output, so a new detector gets diffed
+  against an old ruler. **Every change to the onset detector must be followed
+  by `calibrate.py regroove`** — it rebuilds only `groove_refs` off the cached
+  excerpts and stems in seconds, instead of the tens of minutes `build` spends
+  re-running CLAP.

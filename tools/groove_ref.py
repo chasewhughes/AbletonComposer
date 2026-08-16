@@ -256,7 +256,10 @@ def main():
                 src = st["drums"]
         except Exception as e:
             print(f"(stems unavailable, using full mix: {e})")
-    g = groove_ear.to_json(groove_ear.analyze(src, sr))
+    # role names have to stay KICK/PERC/HATS to line up with the reference
+    # grids, but on a full mix the KICK row is a low-band row: say so by
+    # turning the attack gate off rather than pretending it is a kick channel
+    g = groove_ear.to_json(groove_ear.analyze(src, sr, full_mix=src is y))
     res = analyze(g, refs)
     print(render_report(g, res, {r["label"]: r for r in refs}))
 

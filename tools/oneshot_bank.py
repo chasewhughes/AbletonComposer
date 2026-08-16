@@ -29,7 +29,7 @@ Three findings from building it, recorded so they are not re-discovered:
    below 60 Hz, spectral peak 53.8 Hz — measured 18.6% "sub" and 31.7% "high"
    under the old method. The hand-written TARGETS were fitted to that distorted
    measure, which is why "kick sub 30%" looked plausible. This module uses power
-   shares, and a reference kick reads sub ~77%.
+   shares; the corpus median kick is 65.7% sub, 2.1% high.
 
 2. THE DETECTING BAND AND THE SLICE MUST AGREE. Every role band fires on a
    four-on-the-floor kick, because a kick transient is broadband: the HATS
@@ -50,14 +50,14 @@ WHAT THIS TOOL HONESTLY CANNOT DO, all four measured rather than assumed:
     not contain. `--role=bell` gets a NO REFERENCE DATA block and raw numbers.
 
  b. The 'perc' role is a catch-all and its distribution is correspondingly
-    huge. Measured: the perc test also calls 97% of reference HATS "inside
+    huge. Measured: the perc test also calls 99% of reference HATS "inside
     perc". So an INSIDE-perc verdict means "not obviously broken", not "this is
     good percussion", and the report says that in those words. The kick test is
-    specific (0% of hats, 0% of percs) and the hat test nearly so (0% / 12%).
+    specific (0% of hats, 0% of percs) and the hat test nearly so (0% / 13%).
 
  c. `oddity` is a median and therefore blind to a sound that matches its role
     on most axes and differs on the two or three that define it —
-    forged_metal_bell scores 0.77 against reference percussion while sitting
+    forged_metal_bell scores 0.86 against reference percussion while sitting
     4-5 sigma out on noisiness, crest and rolloff. `n_outside` exists to cover
     that, and is calibrated the same way. Neither statistic catches the bell:
     real percussion hits reach 5 outside axes at p90 and the bell has 4. The
@@ -125,7 +125,7 @@ DEDUPE_S = 0.050
 # every hat's peak frequency look like a 30-sigma event next to a kick's.
 # Stats for these are computed in log2 space and inverted for display.
 LOG_FEATURES = {"peak_hz", "centroid_hz", "rolloff85_hz", "root_hz",
-                "decay20_ms", "attack_ms", "peak_offset_ms"}
+                "decay20_ms", "peak_offset_ms"}
 
 # Minimum robust sigma per feature — the resolution below which a difference is
 # not a difference. Without these the bank is unusable at the extremes: the
@@ -173,12 +173,12 @@ def features(seg, sr):
     below = np.nonzero(after < peak * 0.1)[0]
     f["decay20_ms"] = float((below[0] if len(below) else len(after)) * hop / sr * 1000)
     f["decay_censored"] = float(0.0 if len(below) else 1.0)
-    # attack: -20 dB point before the peak up to the peak
-    before = rms[:pk + 1]
-    lo_idx = np.nonzero(before < peak * 0.1)[0]
-    f["attack_ms"] = float(((pk - lo_idx[-1]) if len(lo_idx) else pk)
-                           * hop / sr * 1000)
-    f["attack_ms"] = max(f["attack_ms"], hop / sr * 1000)   # one frame floor
+    # There is deliberately no separate "attack_ms" here. A -20 dB-before-peak
+    # rise time was measured first and turned out to be the SAME NUMBER as
+    # peak_offset_ms to three digits, for both bank hits and candidates: every
+    # window starts just before its own onset, so the last frame below -20 dB
+    # is frame 0 and rise time collapses to peak position. Keeping both would
+    # have given one fact two votes in the median that decides the verdict.
 
     # How long the hit takes to reach full level. forged_kick_iron peaks 460 ms
     # into its own file — a swell, not a kick — and no band-share or decay
@@ -374,8 +374,7 @@ REPORT_FEATURES = [
     ("centroid_hz", "centroid", "{:6.0f}Hz"),
     ("rolloff85_hz", "rolloff 85%", "{:6.0f}Hz"),
     ("decay20_ms", "decay to -20dB", "{:6.0f}ms"),
-    ("attack_ms", "attack", "{:6.1f}ms"),
-    ("peak_offset_ms", "onset->peak", "{:6.1f}ms"),
+    ("peak_offset_ms", "attack (onset->peak)", "{:6.1f}ms"),
     ("noisiness_db", "noisiness", "{:6.1f}dB"),
     ("crest_db", "crest", "{:6.1f}dB"),
     ("zcr", "zero-cross rate", "{:6.3f}  "),
@@ -385,7 +384,7 @@ REPORT_FEATURES = [
 # shares are left out of the aggregate because they are seven correlated views
 # of one fact and would swamp everything else.
 CORE_FEATURES = ["peak_hz", "centroid_hz", "rolloff85_hz", "decay20_ms",
-                 "attack_ms", "peak_offset_ms", "noisiness_db", "crest_db",
+                 "peak_offset_ms", "noisiness_db", "crest_db",
                  "share.sub", "share.mid", "share.high"]
 
 
@@ -559,6 +558,14 @@ def build(clap=False, verbose=True):
 
     if clap:
         _build_clap(by_role, bank, verbose=verbose)
+    elif (load() or Bank({})).data.get("clap"):
+        # The bank file is rewritten wholesale, so a plain rebuild silently
+        # drops the CLAP block and `profile --clap` goes quiet with no
+        # explanation. Say it out loud rather than carrying stale embeddings
+        # forward — they were made from the previous extraction and would be
+        # matched against hits that no longer exist.
+        print("\nNOTE: this rebuild drops the CLAP block from the previous "
+              "bank.\n      Re-run with --clap to restore `profile --clap`.")
 
     BANK_PATH.write_text(json.dumps(bank, indent=1))
     if verbose:
@@ -746,8 +753,7 @@ def _plain(key, z):
         "centroid_hz": ("brighter", "darker"),
         "rolloff85_hz": ("more extended in the highs", "more rolled-off"),
         "decay20_ms": ("longer-tailed", "shorter-tailed"),
-        "attack_ms": ("slower to attack", "faster to attack"),
-        "peak_offset_ms": ("slower to reach full level", "quicker to peak"),
+        "peak_offset_ms": ("slower to attack", "faster to attack"),
         "noisiness_db": ("noisier / less tonal", "more tonal / less noisy"),
         "crest_db": ("peakier", "more sustained"),
         "zcr": ("more high-frequency content", "less high-frequency content"),

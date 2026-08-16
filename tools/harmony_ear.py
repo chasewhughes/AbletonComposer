@@ -29,13 +29,36 @@ What it reads, and why it reads it that way:
   agreement   Intervals between the dominant notes of each source, named
               musically, with semitone and tritone pairings flagged — plus
               cents-level detuning between sources sharing a pitch class,
-              which is in tune on paper and beats in the room.
+              which is in tune on paper and beats in the room. Every one of
+              those claims is weighted by whether the two sources actually
+              SOUND AT THE SAME TIME (see `overlap`); a dissonance between
+              parts that take turns is a melodic move, not a clash, and two
+              notes that never coincide cannot beat.
+
+Two measurement failures this file has already shipped, both caught by the
+Method rule in tools/LISTENING.md (run it over the reference corpus first):
+
+  * `agreement` compared pitch classes and nothing else. On v4e_tuned it
+    reported "drums and bass are both A but 33 cents apart — they will beat".
+    The bass on that render is written on off-8ths, in the kick's gaps: the
+    two share about 95 ms at a stretch, and a 33-cent detuning at 55 Hz beats
+    at 1.06 Hz, a 0.95 s cycle. They never sound together long enough for one
+    beat cycle to complete. Fixed by `note_activity` / `overlap`.
+  * `root_hz` interpolated its spectral peak on LINEAR magnitude. Measured on
+    synthetic tones at 40-80 Hz that costs 7 cents of error at the median and
+    15 at the worst — the same size as the detunings it was being used to
+    prove. Interpolating on LOG magnitude instead, and refining the estimate
+    from the harmonics (a cents error at the 4th harmonic is a quarter of a
+    cents error at the fundamental), takes the median to 0.1 cents. Every
+    cents claim now carries the interval it was measured to and is dropped
+    when the interval will not support it.
 
 Usage:
   .venv-listen/bin/python tools/harmony_ear.py <audio.wav> [--stems] [--json]
 """
 import numpy as np
 import librosa
+import scipy.signal as sig
 
 PC_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
 
@@ -70,6 +93,33 @@ CONC_PITCHED_MIN = 0.35   # root tracking must find *some* focus to be usable
 # its pitch is fine; letting it raise a CLASH against a part 35 dB louder is
 # not — that is a fault nobody can hear, reported with total confidence.
 AUDIBLE_DB = 30.0
+
+# --- temporal overlap ------------------------------------------------------
+# Two parts only clash if they are both sounding. Activity is measured in a
+# band around each source's own note rather than broadband, because a drum
+# stem is "on" ~100% of the time (hats, reverb tails) and a broadband gate
+# would call every kick/bass pair simultaneous. The band is +-5 semitones;
+# the numbers below barely move between +-3 and +-7, which is how you know
+# the gate is measuring the music and not the filter.
+ACT_HOP = 0.005           # s per activity sample
+ACT_BAND_SEMIS = 5.0
+ACT_DROP_DB = 18.0        # a source is sounding within this of its own p95
+# Share of the *sparser* source's sounding time that is shared with the other.
+SUSTAINED_MIN = 0.50      # above this the two genuinely sound together
+ALTERNATING_MAX = 0.20    # below this they take turns
+
+# --- cents claims ----------------------------------------------------------
+DETUNE_MIN_CENTS = 25.0   # a detuning smaller than this is not worth naming
+OFF_PITCH_CENTS = 30.0    # ... measured against the TRACK's tuning, not A440
+# Cents readings come with a measured half-width (see root_hz_ci). A claim
+# whose interval is wider than this is not a claim, it is a shrug.
+CENTS_CI_MAX = 15.0
+CENTS_CI_FLOOR = 3.0      # never report an interval tighter than the bench
+# Beating is a rate, not a state: a detuning of d cents at f Hz beats at
+# f*(2**(d/1200)-1) Hz. You cannot hear a periodic swell whose period is
+# longer than the time the two parts share, so a "they will beat" claim needs
+# at least this many complete beat cycles inside ONE continuous overlap.
+BEAT_CYCLES_MIN = 1.0
 
 
 def hz_to_note(f):
@@ -140,35 +190,182 @@ def detect_key(chroma):
     return best_pc, best_mode, conf, ranked
 
 
-def root_hz(y, sr, fmin=30.0, fmax=1200.0, n_harm=5):
-    """Sounding fundamental via harmonic summation over the spectrum.
+def _log_peak(mag, i):
+    """Fractional-bin offset of a spectral peak, interpolated on LOG magnitude.
 
-    A plain spectral peak picks whichever partial is loudest — on a bass with
-    a scooped fundamental that is the 2nd harmonic, an octave wrong. Summing
-    each candidate's harmonic series instead votes for the true root.
+    The window transform is Gaussian-ish in dB, so a parabola through three
+    log-magnitude bins lands on the true peak; a parabola through three LINEAR
+    magnitudes does not. This file used to do the linear version, and at
+    40-80 Hz — where one 16384-point bin spans 84 cents — that alone cost a
+    median 7.0 cents and a worst case 14.5 cents on synthetic tones of known
+    pitch. Those are the same numbers the tool was reporting as findings.
+    Log interpolation takes the same signals to a median 0.4 cents.
+    """
+    if i <= 0 or i >= len(mag) - 1:
+        return 0.0
+    a, b, c = (np.log(mag[i - 1] + 1e-12), np.log(mag[i] + 1e-12),
+               np.log(mag[i + 1] + 1e-12))
+    den = a - 2 * b + c
+    if abs(den) < 1e-12:
+        return 0.0
+    return float(np.clip(0.5 * (a - c) / den, -0.5, 0.5))
+
+
+def _mean_spectrum(y, sr, cap=65536):
+    """Averaged magnitude spectrum, with n_fft grown to fit the segment.
+
+    n_fft used to be pinned at 16384 no matter how much audio it was handed,
+    so passing a longer window bought nothing at all — the extra seconds were
+    averaged across frames, which cancels noise but cannot buy resolution. A
+    3 s frame at n_fft=65536 resolves 0.67 Hz where 16384 resolves 2.7 Hz.
+    """
+    n = 1 << int(np.floor(np.log2(max(2048, min(len(y), cap)))))
+    n = max(2048, min(n, 1 << int(np.floor(np.log2(max(2048, len(y)))))))
+    S = np.abs(librosa.stft(y, n_fft=n, hop_length=max(1, n // 4)))
+    return S.mean(axis=1), librosa.fft_frequencies(sr=sr, n_fft=n)
+
+
+def root_hz_ci(y, sr, fmin=30.0, fmax=1200.0, n_harm=5, refine_harm=8,
+               hz_cap=2000.0, tol_cents=40.0, prominence=4.0):
+    """(f0, strength, cents_ci, n_partials) — the root and how well it is known.
+
+    Two stages, because they answer different questions:
+
+    1. Harmonic summation over the bin grid picks the right OCTAVE. A plain
+       spectral peak takes whichever partial is loudest — on a bass with a
+       scooped fundamental that is the 2nd harmonic, an octave wrong.
+    2. The coarse answer is then refined off the partials. Locating the k-th
+       harmonic to within e Hz locates the fundamental to within e/k Hz, so
+       the 4th harmonic of a 55 Hz bass at 220 Hz pins the root four times
+       better than the 55 Hz fundamental can, in a far emptier part of the
+       spectrum. Each partial has to be a prominent local maximum (4x the
+       local median) within `tol_cents` of where it is predicted, or it is
+       some other source's energy and is dropped.
+
+    `cents_ci` is the half-width the partials agree to. It is a precision
+    interval, not a correctness guarantee: when two different sources sit a
+    few Hz apart this function returns whichever is louder, measures it
+    tightly, and the interval says nothing about that. See `overlap` — that
+    is the check that catches the case where two parts are both present.
     """
     if len(y) < sr // 8 or float(np.max(np.abs(y))) < 1e-5:
-        return 0.0, 0.0
-    n_fft = 16384 if len(y) >= 16384 else 4096
-    S = np.abs(librosa.stft(y, n_fft=n_fft, hop_length=n_fft // 4))
-    mag = S.mean(axis=1)
-    freqs = librosa.fft_frequencies(sr=sr, n_fft=n_fft)
+        return 0.0, 0.0, 0.0, 0
+    mag, freqs = _mean_spectrum(y, sr)
+    df = float(freqs[1] - freqs[0])
     lo = np.searchsorted(freqs, fmin)
     hi = np.searchsorted(freqs, fmax)
     if hi <= lo:
-        return 0.0, 0.0
+        return 0.0, 0.0, 0.0, 0
     scores = np.zeros(hi - lo)
     for k in range(1, n_harm + 1):
         idx = np.clip(np.searchsorted(freqs, freqs[lo:hi] * k), 0, len(mag) - 1)
         scores += mag[idx] / k          # decay weight: high partials count less
     i = int(np.argmax(scores))
     f0 = float(freqs[lo + i])
-    if 0 < i < len(scores) - 1:         # parabolic refine for sub-bin accuracy
-        a, b, c = scores[i - 1], scores[i], scores[i + 1]
-        d = (a - c) / (2 * (a - 2 * b + c) + 1e-12)
-        f0 = float(freqs[lo + i] + d * (freqs[1] - freqs[0]))
     strength = float(scores[i] / (scores.mean() + 1e-12))
+
+    ests, wts = [], []
+    for k in range(1, refine_harm + 1):
+        fk = f0 * k
+        if fk > min(hz_cap, freqs[-1] * 0.98):
+            break
+        b = int(round(fk / df))
+        s, e = max(1, b - 2), min(len(mag) - 1, b + 3)
+        if e <= s:
+            continue
+        j = s + int(np.argmax(mag[s:e]))
+        if j <= 0 or j >= len(mag) - 1:
+            continue
+        if not (mag[j] >= mag[j - 1] and mag[j] >= mag[j + 1]):
+            continue
+        w = max(8, int(round(fk * 0.25 / df)))
+        floor = float(np.median(mag[max(0, j - w):min(len(mag), j + w + 1)]))
+        if mag[j] < prominence * (floor + 1e-12):
+            continue                    # noise floor, not a partial
+        f_meas = (j + _log_peak(mag, j)) * df
+        c = 1200 * np.log2(max(f_meas, 1e-9) / fk)
+        if abs(c) > tol_cents:
+            continue                    # not this note's harmonic
+        ests.append(c)
+        wts.append(float(mag[j]) * k)   # loud partials and high ones count more
+    if not ests:
+        # Nothing prominent enough to interpolate: the bin-grid answer stands,
+        # and half a bin is the honest interval on it.
+        return f0, strength, float(1200 * np.log2(1 + 0.5 * df / max(f0, 1e-9))), 0
+    ests = np.array(ests)
+    wts = np.array(wts) / np.sum(wts)
+    c_hat = float(np.sum(ests * wts))
+    if len(ests) > 1:
+        var = float(np.sum(wts * (ests - c_hat) ** 2)) * len(ests) / (len(ests) - 1)
+        ci = 2.0 * float(np.sqrt(var))
+    else:
+        ci = 25.0                       # one partial agrees with itself for free
+    return (f0 * 2 ** (c_hat / 1200), strength,
+            max(ci, CENTS_CI_FLOOR), len(ests))
+
+
+def root_hz(y, sr, fmin=30.0, fmax=1200.0, n_harm=5):
+    """(f0, strength). Thin wrapper on root_hz_ci for callers that only want
+    the pitch — tools/oneshot_bank.py reads one-shot fundamentals this way."""
+    f0, strength, _ci, _n = root_hz_ci(y, sr, fmin=fmin, fmax=fmax,
+                                       n_harm=n_harm)
     return f0, strength
+
+
+def note_activity(y, sr, f_center, semis=ACT_BAND_SEMIS, hop_s=ACT_HOP,
+                  drop_db=ACT_DROP_DB):
+    """Boolean "this source is sounding its note" per `hop_s`, band-limited.
+
+    Band-limited and not broadband because the question a clash check has to
+    answer is "is this part putting energy at THIS pitch right now", and a
+    drum stem answers "yes" to a broadband version of that question for the
+    whole record. Filtered with second-order sections: a 4th-order b/a
+    Butterworth at 46-65 Hz against a 22050 Hz Nyquist is numerically dead on
+    arrival and silently returns an all-zero envelope.
+    """
+    ny = sr / 2.0
+    lo = max(15.0, f_center / 2 ** (semis / 12)) / ny
+    hi = min(ny * 0.98, f_center * 2 ** (semis / 12)) / ny
+    if not (0 < lo < hi < 1):
+        return np.zeros(0, dtype=bool)
+    z = sig.sosfiltfilt(sig.butter(4, [lo, hi], btype="band", output="sos"), y)
+    h = max(1, int(hop_s * sr))
+    n = len(z) // h
+    if n < 4:
+        return np.zeros(0, dtype=bool)
+    env = np.sqrt(np.mean(z[:n * h].reshape(n, h) ** 2, axis=1))
+    ref = float(np.percentile(env, 95))
+    if ref <= 0:
+        return np.zeros(n, dtype=bool)
+    return env > ref * 10 ** (-drop_db / 20)
+
+
+def overlap(mask_a, mask_b, hop_s=ACT_HOP):
+    """How much, and for how long at a stretch, two sources sound together.
+
+    `of_sparser` is the share of the less-busy source's sounding time that is
+    shared with the other — the number that says "when this part plays, is
+    the other one playing too". `longest_s` is the longest single continuous
+    stretch, which is what beating needs: beating is a periodic swell, and a
+    swell whose period exceeds the time the parts share never completes.
+    """
+    n = min(len(mask_a), len(mask_b))
+    if n < 4:
+        return None
+    a, b = mask_a[:n], mask_b[:n]
+    both = a & b
+    on_a, on_b = float(a.mean()), float(b.mean())
+    sparser = min(on_a, on_b)
+    d = np.diff(np.concatenate([[0], both.astype(np.int8), [0]]))
+    lens = (np.where(d == -1)[0] - np.where(d == 1)[0]) * hop_s
+    return {
+        "share": round(float(both.mean()), 3),
+        "on_a": round(on_a, 3), "on_b": round(on_b, 3),
+        "of_sparser": round(float(both.mean() / sparser) if sparser > 0 else 0.0, 3),
+        "longest_s": round(float(lens.max()) if len(lens) else 0.0, 3),
+        "p90_run_s": round(float(np.percentile(lens, 90)) if len(lens) else 0.0, 3),
+        "n_runs": int(len(lens)),
+    }
 
 
 def root_track(y, sr, hop_s=0.25, fmin=30.0, fmax=1200.0, min_strength=3.0):
@@ -182,7 +379,7 @@ def root_track(y, sr, hop_s=0.25, fmin=30.0, fmax=1200.0, min_strength=3.0):
         w = float(np.sqrt(np.mean(seg ** 2)))
         if w < 1e-5:
             continue
-        f0, strength = root_hz(seg, sr, fmin=fmin, fmax=fmax)
+        f0, strength, ci, n_part = root_hz_ci(seg, sr, fmin=fmin, fmax=fmax)
         if f0 <= 0 or strength < min_strength:
             continue
         name, octv, cents = hz_to_note(f0)
@@ -190,22 +387,43 @@ def root_track(y, sr, hop_s=0.25, fmin=30.0, fmax=1200.0, min_strength=3.0):
             continue
         hist[PC_NAMES.index(name)] += w
         frames.append({"t": round(s / sr, 2), "hz": round(f0, 2),
-                       "note": f"{name}{octv}", "cents": round(cents, 1)})
+                       "note": f"{name}{octv}", "cents": round(cents, 1),
+                       "ci": round(ci, 1), "partials": n_part})
     total = hist.sum()
     if total <= 0 or not frames:
         return {"hist": [0.0] * 12, "concentration": 0.0, "top": [],
-                "n_frames": 0, "median_cents": 0.0, "frames": []}
+                "n_frames": 0, "median_cents": 0.0, "cents_ci": 0.0,
+                "top_hz": 0.0, "frames": []}
     hist /= total
     order = np.argsort(-hist)
     # concentration: share held by the two strongest pitch classes. A
     # monophonic line lands near 1.0; unpitched noise spreads across twelve.
     conc = float(hist[order[0]] + hist[order[1]])
     top_pc = int(order[0])
-    cents_top = [f["cents"] for f in frames
-                 if PC_NAMES.index(f["note"][:-1]) == top_pc]
+    on_top = [f for f in frames if PC_NAMES.index(f["note"][:-1]) == top_pc]
+    cents_top = [f["cents"] for f in on_top]
     med_cents = float(np.median(cents_top)) if cents_top else 0.0
     spread = float(np.percentile(cents_top, 75) - np.percentile(cents_top, 25)) \
         if len(cents_top) > 3 else 0.0
+    # The frequency this pitch class actually sounds at, in its usual octave —
+    # the band a beating check has to listen in. Frames can land an octave
+    # apart on the same pitch class, so pick the modal octave first.
+    top_hz = 0.0
+    if on_top:
+        octs = [int(f["note"][len(PC_NAMES[top_pc]):]) for f in on_top]
+        modal = max(set(octs), key=octs.count)
+        top_hz = float(np.median([f["hz"] for f, o in zip(on_top, octs)
+                                  if o == modal]))
+    # Uncertainty on `med_cents`, in cents. Two terms, and the wider wins:
+    # how tightly each frame's partials agreed (measurement precision), and
+    # the standard error of the median across frames (the part genuinely
+    # moving, or the estimator being pushed around by whatever else is in
+    # the band). Neither is allowed under CENTS_CI_FLOOR — the synthetic
+    # bench does not support a claim tighter than that.
+    frame_ci = float(np.median([f.get("ci", 0.0) for f in on_top])) \
+        if on_top else 0.0
+    sem = 1.253 * (spread / 1.349) / np.sqrt(max(1, len(cents_top)))
+    cents_ci = float(max(CENTS_CI_FLOOR, frame_ci, 1.96 * sem))
     # A pitch-swept kick has no single pitch: its root walks a semitone during
     # the decay, so the rounded pitch class flips between neighbours and any
     # interval built on it is fiction. Both guards below have to pass before

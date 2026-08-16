@@ -611,8 +611,8 @@ def _build_clap(by_role, bank, per_role=120, verbose=True):
     sims = E @ txt.T                                # (N, P)
     roles_arr = np.array(roles)
     clap_stats = {}
-    for role in BANK_ROLES:
-        m = roles_arr == role
+    for role in list(BANK_ROLES) + ["all"]:
+        m = (roles_arr == role) if role != "all" else np.ones(len(roles), bool)
         if not m.any():
             continue
         clap_stats[role] = {
@@ -622,13 +622,18 @@ def _build_clap(by_role, bank, per_role=120, verbose=True):
                            "p90": round(float(np.percentile(sims[m, j], 90)), 4)}
                        for j, p in enumerate(MATERIAL_PROMPTS)},
         }
+    # Same-role nearest-neighbour rate: the control that says whether CLAP is
+    # hearing the drum or the silence it was padded with. Measured at 100% /
+    # 100% / 97.5% for kick / hat / perc, so it is hearing the drum.
+    S = E @ E.T
+    np.fill_diagonal(S, -1)
+    nn_role = roles_arr[S.argmax(axis=1)]
+    clap_stats["nn_role_agreement"] = {
+        r: round(float(np.mean(nn_role[roles_arr == r] == r)), 4)
+        for r in BANK_ROLES if (roles_arr == r).any()}
     # How similar is a reference hit to OTHER reference hits? This is the
     # yardstick that makes "your bell scores 0.31 to the corpus" readable.
-    nn = []
-    for i in range(len(E)):
-        s = E[i] @ E.T
-        s[i] = -1
-        nn.append(float(s.max()))
+    nn = list(S.max(axis=1))
     bank["clap"] = {
         "path": CLAP_PATH.name,
         "prompts": MATERIAL_PROMPTS,
@@ -966,7 +971,16 @@ def clap_reading(seg, bank, ear):
 
     self_nn = meta["self_nn"]
     nn = float(sims.max())
-    L = ["CLAP reading (what it sounds LIKE — not whether it is good)"]
+    agree = meta["roles"].get("nn_role_agreement", {})
+    L = ["CLAP reading — what it sounds LIKE. This is the only part of the "
+         "tool that can",
+         "speak to instrument identity; none of it says whether the sample is "
+         "GOOD."]
+    if agree:
+        L.append("  (control: a reference hit's nearest neighbour is the same "
+                 "role " +
+                 ", ".join(f"{100 * v:.0f}% for {k}s" for k, v in agree.items())
+                 + " — so the embedding is hearing the drum, not the padding.)")
     L.append(f"  nearest reference drum hit: {nn:.3f} "
              f"({labels[int(order[0])]})")
     L.append(f"    a reference hit's nearest OTHER reference hit scores "
@@ -974,20 +988,41 @@ def clap_reading(seg, bank, ear):
              f"{self_nn['p90']:.3f}]")
     if nn < self_nn["p10"]:
         L.append("    -> below the range real drum hits reach with each other: "
-                 "this is not a sound the reference drums contain.")
-    L.append("  reads as:")
-    for j in top:
-        p = prompts[int(j)]
-        ref = (meta["roles"].get("kick", {}).get("prompt", {}) or {}).get(p)
-        band = ""
-        if ref:
-            band = (f"   (reference kicks {ref['median']:+.3f}, hats "
-                    f"{meta['roles']['hat']['prompt'][p]['median']:+.3f}, perc "
-                    f"{meta['roles']['perc']['prompt'][p]['median']:+.3f})"
-                    if all(r in meta["roles"] for r in BANK_ROLES) else "")
-        L.append(f"    {p:28s}{float(tsims[int(j)]):+.3f}{band}")
+                 "this is not a sound the reference drum stems contain.")
+
+    # Raw prompt scores are NOT rankable: reference hi-hats score +0.253 on
+    # "a wooden percussion block" and only +0.136 on "a hi-hat cymbal". CLAP's
+    # absolute similarities carry a large per-prompt offset. What survives is
+    # the DIFFERENCE from what real drum hits score on the same prompt, so that
+    # is what gets printed.
+    allp = (meta["roles"].get("all") or {}).get("prompt") or {}
+    rows = []
+    for j, p in enumerate(prompts):
+        ref = allp.get(p)
+        if not ref:
+            continue
+        spread = max((ref["p90"] - ref["p10"]) / 2.56, 1e-6)
+        rows.append((float(tsims[j] - ref["median"]) / spread,
+                     p, float(tsims[j]), ref))
+    rows.sort(reverse=True)
+    if rows:
+        L.append("  most unlike the reference drum hits, by prompt "
+                 "(delta from what real hits score):")
+        for zed, p, v, ref in rows[:4]:
+            L.append(f"    {p:28s}{v:+.3f}  refs {ref['median']:+.3f}"
+                     f"  z={zed:+.1f}")
+        L.append("  least:")
+        for zed, p, v, ref in rows[-2:]:
+            L.append(f"    {p:28s}{v:+.3f}  refs {ref['median']:+.3f}"
+                     f"  z={zed:+.1f}")
+    L.append("  what this cannot answer: whether it is a GOOD bell / duduk / "
+             "anything")
+    L.append("  the corpus does not contain. There is no reference bell to be "
+             "better or worse than.")
     return {"nearest_sim": round(nn, 4),
             "nearest": labels[int(order[0])],
+            "prompt_z": [(p, round(v, 4), round(zed, 2))
+                         for zed, p, v, _ in rows],
             "top_prompts": [(prompts[int(j)], round(float(tsims[int(j)]), 4))
                             for j in top],
             "report": "\n".join(L)}

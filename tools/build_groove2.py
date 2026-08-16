@@ -62,7 +62,7 @@ VOICES = {
     "THROAT": ("forged_throat_spectral", -20.0, 4.32, None),
     "HAZE":   ("forged_haze_bed",        -26.0, 4.21, None),
 }
-ACID_DB = -15.0
+ACID_DB = -10.0
 # References run their bass stem ~8 dB under the DRUMS STEM (-17.1 vs -9.1
 # measured across the 9 Drumcode singles). The trap: that is a stem-to-stem
 # ratio, and the drums stem is ten voices summed, not the kick track alone.
@@ -338,7 +338,15 @@ def chat_pattern(bars, rng):
     read as forward motion instead of a wash; swing_58 then pushes the even
     16ths late so it rolls rather than marches.
     """
-    bar_vels = [38, 62, 88, 62] * 4
+    # Accent FLOOR raised from 38 to 66. The old range put three of every four
+    # 16ths so far under the open hat that they did not survive a local
+    # prominence test — which is roughly what an ear does in a dense mix. The
+    # render measured 8.8 hat onsets/s written (16ths) but only 8 hits per 2
+    # bars heard, against 16 in the references, and its high-band congestion
+    # sat 7 dB below every reference: gaps where the records have continuity.
+    # Written notes nobody hears are not a groove. 66/100 keeps the accent
+    # shape while clearing the gate.
+    bar_vels = [66, 84, 100, 84] * 4
     return _steps(bars, bar_vels, dur=0.10)
 
 
@@ -587,7 +595,14 @@ def main(bars, seed):
         ps.set_many(-1, du, {"Bass Mono": (E, "On"), "Bass Freq": (V, 120.0)},
                     label="Utility (bass mono)")
 
-    ps.set_many(-1, 2, {"Ceiling": (V, -0.6), "Input Gain": (V, 0.0),
+    # Input Gain was held at unity because driving it once flattened crest to
+    # 6.5 dB. That fear was calibrated against a hand-written "crest 10-14"
+    # target. The corpus says the Drumcode masters sit at 8.4 dB [7.6..11.1]
+    # and -7.3 LUFS; this render sits at 12.3 dB and -12.5. It is not too
+    # dynamic to be good, it is unmastered — so the limiter should be driven,
+    # and the track trims cannot do it (KICK is already at +3.5 dB and a Live
+    # fader stops at +6).
+    ps.set_many(-1, 2, {"Ceiling": (V, -0.6), "Input Gain": (V, 5.0),
                         "Release": (V, 200.0), "Auto": (E, "On"), "Mode": (E, "Standard")},
                 label="Limiter")
 

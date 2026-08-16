@@ -437,7 +437,9 @@ def root_track(y, sr, hop_s=0.25, fmin=30.0, fmax=1200.0, min_strength=3.0):
         "top_pc": top_pc,
         "n_frames": len(frames),
         "median_cents": round(med_cents, 1),
+        "cents_ci": round(cents_ci, 1),
         "cents_spread": round(spread, 1),
+        "top_hz": round(top_hz, 2),
         "pitch_reliable": bool(reliable),
         "frames": frames[:64],
     }
@@ -462,7 +464,7 @@ def read_source(y, sr, name="mix", role=None):
     notes = root_track(y, sr, fmin=fmin)
     ch = chroma_vector(y, sr)
     tonic, mode, conf, ranked = detect_key(ch)
-    f0, f0_strength = root_hz(y, sr, fmin=fmin)
+    f0, f0_strength, f0_ci, _n = root_hz_ci(y, sr, fmin=fmin)
     note, octv, cents = hz_to_note(f0)
     usable = notes["concentration"] >= CONC_PITCHED_MIN and notes["n_frames"] >= 4
     return {
@@ -480,6 +482,7 @@ def read_source(y, sr, name="mix", role=None):
         "root_note": f"{note}{octv}" if note else None,
         "root_strength": round(f0_strength, 2),
         "cents_off": round(cents, 1),
+        "cents_off_ci": round(f0_ci, 1),
         "notes": notes,
         "chroma": [round(float(v), 3) for v in ch],
     }
@@ -507,8 +510,36 @@ def audible(readings, floor_db=AUDIBLE_DB):
             if not r.get("silent") and r.get("rms_db", -99.0) > top - floor_db}
 
 
-def agreement(readings):
-    """Interval relations between the sources that actually play notes."""
+def activity_masks(sources, readings, sr):
+    """{name: boolean sounding-mask} for every source with a usable note.
+
+    Built once per analysis and handed to `agreement`, because the masks are
+    arrays and the readings are JSON.
+    """
+    masks = {}
+    for r in readings:
+        if r.get("silent") or not r.get("usable_pitch"):
+            continue
+        f = (r.get("notes") or {}).get("top_hz") or 0.0
+        y = sources.get(r["name"])
+        if f <= 0 or y is None or len(y) < sr // 2:
+            continue
+        m = note_activity(y, sr, f)
+        if len(m):
+            masks[r["name"]] = m
+    return masks
+
+
+def agreement(readings, masks=None):
+    """Interval relations between the sources that actually play notes.
+
+    Every pair carries an `overlap` block. It used to carry none, and the
+    consequence was a "they will beat" verdict on a bass deliberately written
+    in the kick's gaps — see the module docstring. A pairing with no overlap
+    reading at all is left as None and the callers downgrade rather than
+    guess.
+    """
+    masks = masks or {}
     loud = audible(readings)
     voices = [r for r in readings
               if r.get("role") == "pitched" and played_notes(r)
@@ -531,10 +562,25 @@ def agreement(readings):
                                   INTERVALS[semis][0], round(sa * sb, 3)))
         top_a, top_b = a["notes"]["top_pc"], b["notes"]["top_pc"]
         semis = (top_a - top_b) % 12
-        detune = None
+        detune = detune_ci = beat_hz = None
         if semis == 0:
             detune = round(a["notes"]["median_cents"] -
                            b["notes"]["median_cents"], 1)
+            # Independent readings, so the intervals add in quadrature.
+            detune_ci = round(float(np.hypot(a["notes"].get("cents_ci", 0.0),
+                                             b["notes"].get("cents_ci", 0.0))), 1)
+            fa = a["notes"].get("top_hz") or 0.0
+            fb = b["notes"].get("top_hz") or 0.0
+            if fa > 0 and fb > 0:
+                # Beat rate between the two sounding frequencies, folded to
+                # the nearest octave: a bass an octave under a kick on the
+                # same note beats at the difference of the *coinciding*
+                # partials, not at 55 Hz.
+                ratio = max(fa, fb) / min(fa, fb)
+                folded = min(fa, fb) * 2 ** round(np.log2(ratio))
+                beat_hz = round(abs(folded - max(fa, fb)), 3)
+        ov = overlap(masks[a["name"]], masks[b["name"]]) \
+            if a["name"] in masks and b["name"] in masks else None
         pairs.append({
             "kind": kind, "a": a["name"], "b": b["name"],
             "a_note": PC_NAMES[top_a], "b_note": PC_NAMES[top_b],
@@ -542,6 +588,7 @@ def agreement(readings):
             "interval": INTERVALS[semis][0], "semitones": semis,
             "harsh": bool(INTERVALS[semis][1]),
             "harsh_pairs": harsh, "detune_cents": detune,
+            "detune_ci": detune_ci, "beat_hz": beat_hz, "overlap": ov,
         })
 
     for i in range(len(voices)):
@@ -595,14 +642,65 @@ def consensus_key(readings):
     }
 
 
+def _together(p):
+    """(share-of-sparser, longest continuous run, one-line description).
+
+    Falls back to "assume they overlap" when there is no mask, so a missing
+    measurement never silences a real fault — it just cannot sharpen it.
+    """
+    ov = p.get("overlap")
+    if not ov:
+        return 1.0, None, ""
+    return (ov["of_sparser"], ov["longest_s"],
+            f"together {ov['of_sparser']:.0%} of the time "
+            f"({ov['longest_s']:.2f} s at a stretch)")
+
+
+def track_tuning_cents(readings, loud):
+    """The reference pitch the RECORD is tuned to, in cents from A440.
+
+    Nothing here is tuned to concert pitch. Five of the nine Drumcode
+    references sit 30-45 cents off A440 across every stem at once, and the
+    OFF PITCH check — which measured each source against equal temperament —
+    duly reported all of them as needing a retune. A source is out of tune
+    when it disagrees with the rest of THIS track, so that is the ruler.
+    """
+    vals, wts = [], []
+    for r in readings:
+        if r.get("silent") or not r.get("usable_pitch") or \
+                r["name"] not in loud:
+            continue
+        n = r["notes"]
+        if n.get("cents_spread", 0.0) > 60 or not n.get("pitch_reliable", True):
+            continue
+        vals.append(n["median_cents"])
+        wts.append(10 ** (r.get("rms_db", -60.0) / 20))
+    if not vals:
+        return 0.0, 0
+    order = np.argsort(vals)
+    v = np.array(vals)[order]
+    w = np.cumsum(np.array(wts)[order])
+    return float(v[np.searchsorted(w, w[-1] / 2)]), len(vals)
+
+
 def analyze(sources, sr):
-    """sources: {name: mono array}. Returns the full harmonic reading."""
+    """sources: {name: mono array}. Returns the full harmonic reading.
+
+    `problems` are faults worth acting on. `observations` are readings that
+    are true but not actionable — a dissonance between parts that alternate,
+    a detuning too small or too brief to beat, a cents figure the analysis
+    cannot resolve. They are kept apart because listen.py puts `problems` in
+    the report headline, and a headline that fires on 13 of 18 released
+    Drumcode records is noise, not criticism.
+    """
     readings = [read_source(y, sr, name=n) for n, y in sources.items()]
     cons = consensus_key(readings)
-    pairs = agreement(readings)
-    problems = []
+    masks = activity_masks(sources, readings, sr)
+    pairs = agreement(readings, masks=masks)
+    problems, observations = [], []
 
     for p in pairs:
+        share, longest, when = _together(p)
         if p["kind"] == "tuning":
             # Only a semitone is unambiguously wrong between a drum and a
             # bass. A kick a tritone from the root shows up on released
@@ -616,27 +714,83 @@ def analyze(sources, sr):
                 note = PC_NAMES[[r for r in readings
                                  if r["name"] == p["b"]][0]["notes"]["top_pc"]] \
                     if p["semitones"] in (1, 11) else semis[0][1]
-                problems.append(
-                    f"KICK/BASS RUB: {p['a']} is tuned to {p['a_note']} "
-                    f"({p['a_root']}), {p['b']} plays {note} — a semitone "
-                    f"apart in the same octave. Retune the drum or move the "
-                    f"part; a sidechain will duck it, not fix it.")
+                # A kick and a bass that take turns are what sidechaining is
+                # FOR. The semitone only rubs while both are sounding.
+                if share <= ALTERNATING_MAX:
+                    observations.append(
+                        f"kick/bass semitone: {p['a']} is tuned to "
+                        f"{p['a_note']} ({p['a_root']}) and {p['b']} plays "
+                        f"{note}, but they {when} — they take turns, so this "
+                        f"reads as a pitch step, not a rub.")
+                else:
+                    problems.append(
+                        f"KICK/BASS RUB: {p['a']} is tuned to {p['a_note']} "
+                        f"({p['a_root']}), {p['b']} plays {note} — a semitone "
+                        f"apart in the same octave, {when}. Retune the drum "
+                        f"or move the part; a sidechain will duck it, not "
+                        f"fix it.")
         elif p["harsh"]:
-            problems.append(
-                f"CLASH: {p['a']} plays {p['a_note']} against {p['b']} "
-                f"{p['b_note']} — a {p['interval']} between two sustained "
-                f"roots.")
+            if share >= SUSTAINED_MIN:
+                problems.append(
+                    f"CLASH: {p['a']} plays {p['a_note']} against {p['b']} "
+                    f"{p['b_note']} — a {p['interval']} between two roots "
+                    f"sounding {when}.")
+            elif share > ALTERNATING_MAX:
+                problems.append(
+                    f"CLASH (intermittent): {p['a']} {p['a_note']} against "
+                    f"{p['b']} {p['b_note']} — a {p['interval']}, {when}.")
+            else:
+                observations.append(
+                    f"melodic {p['interval']}: {p['a']} {p['a_note']} and "
+                    f"{p['b']} {p['b_note']} alternate ({when}) — heard as a "
+                    f"line, not a clash.")
         elif p["harsh_pairs"] and p["kind"] == "voices":
             worst = max(p["harsh_pairs"], key=lambda h: h[3])
-            if worst[3] >= 0.10:
+            if worst[3] >= 0.10 and share > ALTERNATING_MAX:
                 problems.append(
                     f"CLASH (secondary): {p['a']} {worst[0]} against {p['b']} "
                     f"{worst[1]} — a {worst[2]}, present {worst[3]:.0%} of "
-                    f"the time.")
-        if p["detune_cents"] is not None and abs(p["detune_cents"]) > 25:
-            problems.append(
-                f"DETUNED: {p['a']} and {p['b']} are both {p['a_note']} but "
-                f"{abs(p['detune_cents']):.0f} cents apart — they will beat.")
+                    f"the time, {when}.")
+            elif worst[3] >= 0.10:
+                observations.append(
+                    f"melodic {worst[2]}: {p['a']} {worst[0]} against "
+                    f"{p['b']} {worst[1]} — they alternate ({when}).")
+
+        # Detuning. Three things have to hold before "they will beat" is a
+        # statement about the room rather than about the FFT: the difference
+        # has to exceed what the analysis can resolve, the two parts have to
+        # sound together, and one continuous overlap has to be long enough
+        # for at least BEAT_CYCLES_MIN complete beat cycles.
+        d = p["detune_cents"]
+        if d is not None and abs(d) > DETUNE_MIN_CENTS:
+            ci = p.get("detune_ci") or 0.0
+            beat = p.get("beat_hz") or 0.0
+            cycles = (longest * beat) if (longest and beat > 0) else None
+            if ci > CENTS_CI_MAX or abs(d) - ci <= DETUNE_MIN_CENTS:
+                observations.append(
+                    f"detuning not resolvable: {p['a']} and {p['b']} are both "
+                    f"{p['a_note']}, apparently {abs(d):.0f} cents apart, but "
+                    f"the reading is only good to +-{ci:.0f} cents — not a "
+                    f"claim this analysis can support.")
+            elif cycles is not None and cycles < BEAT_CYCLES_MIN:
+                observations.append(
+                    f"detuned but not beating: {p['a']} and {p['b']} are both "
+                    f"{p['a_note']}, {abs(d):.0f}+-{ci:.0f} cents apart "
+                    f"({beat:.2f} Hz beat, a {1 / beat:.2f} s cycle), but they "
+                    f"{when} — under one beat cycle, so no beating. It reads "
+                    f"as one sitting slightly {'sharp' if d > 0 else 'flat'} "
+                    f"of the other.")
+            elif share <= ALTERNATING_MAX:
+                observations.append(
+                    f"detuned but alternating: {p['a']} and {p['b']} are both "
+                    f"{p['a_note']}, {abs(d):.0f}+-{ci:.0f} cents apart, but "
+                    f"they {when}.")
+            else:
+                problems.append(
+                    f"DETUNED: {p['a']} and {p['b']} are both {p['a_note']} "
+                    f"but {abs(d):.0f}+-{ci:.0f} cents apart — {when}, which "
+                    f"is {cycles:.0f} cycles of a {beat:.2f} Hz beat. "
+                    f"They will beat.")
 
     loud = audible(readings)
     tonic = cons.get("root_tonic")
@@ -653,20 +807,37 @@ def analyze(sources, sr):
                 problems.append(
                     f"OUT OF SCALE: {r['name']} plays {', '.join(outside)} — "
                     f"outside any diatonic scale on {tonic}.")
+    ref_cents, n_ref = track_tuning_cents(readings, loud)
+    if abs(ref_cents) > 10 and n_ref >= 2:
+        observations.append(
+            f"track tuning: this render sits {ref_cents:+.0f} cents from "
+            f"A440 overall — every OFF PITCH reading below is measured "
+            f"against that, not against concert pitch.")
     for r in readings:
         if r.get("silent") or not r.get("usable_pitch") or \
                 r["name"] not in loud:
             continue
         n = r["notes"]
-        c, spread = n["median_cents"], n.get("cents_spread", 0.0)
+        spread = n.get("cents_spread", 0.0)
         if spread > 60:
             continue                 # a pitch-swept source has no one pitch
-        if abs(c) > 30:
-            problems.append(
-                f"OFF PITCH: {r['name']} sits {c:+.0f} cents from "
-                f"{PC_NAMES[n['top_pc']]} — retune the sample.")
+        c = n["median_cents"] - (ref_cents if n_ref >= 2 else 0.0)
+        ci = n.get("cents_ci", CENTS_CI_FLOOR)
+        if abs(c) <= OFF_PITCH_CENTS:
+            continue
+        if ci > CENTS_CI_MAX or abs(c) - ci <= OFF_PITCH_CENTS:
+            observations.append(
+                f"{r['name']} may sit {c:+.0f} cents off "
+                f"{PC_NAMES[n['top_pc']]}, but only to +-{ci:.0f} cents — "
+                f"under the resolution needed to call it.")
+            continue
+        problems.append(
+            f"OFF PITCH: {r['name']} sits {c:+.0f}+-{ci:.0f} cents from "
+            f"{PC_NAMES[n['top_pc']]} relative to the rest of the track — "
+            f"retune the sample.")
     return {"sources": readings, "consensus": cons, "pairs": pairs,
-            "problems": problems}
+            "tuning_ref_cents": round(ref_cents, 1),
+            "problems": problems, "observations": observations}
 
 
 def render_table(h):
@@ -693,12 +864,20 @@ def render_table(h):
                  f"{r['notes']['median_cents']:+7.0f}"
                  f"{r['notes']['concentration']:7.2f}")
     for p in h["pairs"]:
-        extra = f"  ({p['detune_cents']:+.0f} cents apart)" \
-            if p["detune_cents"] is not None else ""
+        extra = (f"  ({p['detune_cents']:+.0f}+-{p.get('detune_ci') or 0:.0f} "
+                 f"cents apart)") if p["detune_cents"] is not None else ""
+        ov = p.get("overlap")
+        # The overlap column is the whole point of the pair rows: an interval
+        # between parts that never sound together is not a relation you can
+        # hear. Blank means the overlap could not be measured.
+        together = f"  [together {ov['of_sparser']:.0%}, runs " \
+                   f"{ov['longest_s']:.2f}s]" if ov else ""
         mark = "  <-- harsh" if p["harsh"] else ""
         tag = "tuning" if p["kind"] == "tuning" else "voices"
         L.append(f"  [{tag}] {p['a']} {p['a_note']} -> {p['b']} {p['b_note']}: "
-                 f"{p['interval']}{extra}{mark}")
+                 f"{p['interval']}{extra}{together}{mark}")
+    for o in h.get("observations") or []:
+        L.append(f"  note: {o}")
     return "\n".join(L)
 
 
@@ -734,6 +913,10 @@ def main():
             print(f"  - {p}")
     else:
         print("\nno harmonic conflicts detected.")
+    if h.get("observations"):
+        print("\nobservations (true, but not faults):")
+        for o in h["observations"]:
+            print(f"  - {o}")
 
 
 if __name__ == "__main__":

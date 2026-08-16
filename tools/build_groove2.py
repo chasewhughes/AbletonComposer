@@ -88,6 +88,9 @@ BASS_GAIN_DB = 18.0
 # than tick, so this is aimed at `groove` as much as at `space`. The kick and
 # sub stay bone dry; everything decorative gets air.
 SPACE = {
+    # CHAT gets a little air because the sample decays in 29 ms against a
+    # corpus median of 75 ms — it reads as a tick rather than a hi-hat.
+    "CHAT":   ("Reverb", 0.11),
     "PERC":   ("Reverb", 0.20), "TICK": ("Reverb", 0.26),
     "BELL":   ("Reverb", 0.30), "WOOD": ("Reverb", 0.16),
     "SCRAPE": ("Reverb", 0.34), "OHAT": ("Reverb", 0.14),
@@ -557,6 +560,31 @@ def main(bars, seed):
     print("sections: " + " ".join(f"{k}{SECTIONS[k]}" for k in SECTIONS
                                   if SECTIONS[k] != (1, 16)))
 
+    # ---- closed hat: move its energy up an octave.
+    # The reference-derived one-shot bank puts forged_hat_static 2.8 sigma
+    # BELOW the corpus on 6-12 kHz (16.5% against 61.2%) and 3.1 sigma above
+    # on 2-6 kHz, with its peak at 3.0 kHz where reference hats sit at 6.8.
+    # The mix says the same thing from the other end: high -1.9 z while
+    # highmid rides the top of the range. Transposing the sample up would fix
+    # the spectrum and shorten a decay that is already 8 sigma too short, so
+    # this is EQ instead.
+    dq = b.ensure_effect(tracks["CHAT"], "EQ Eight")
+    if dq is not None:
+        ps.set_many(tracks["CHAT"], dq, {
+            "4 Filter On A": (E, "On"), "4 Filter Type A": (E, "Bell"),
+            "4 Frequency A": (V, 3000.0), "4 Gain A": (V, -5.0),
+            "4 Q A": (V, 0.9),
+            # A BELL, not a shelf. The first attempt used a +7.5 dB shelf at
+            # 7 kHz: highmid landed exactly on the reference median (z 0.0)
+            # but a shelf lifts everything above it, so air went to z +1.9 and
+            # the extra HF ate 2.6 dB of limiter headroom (LUFS -8.1 -> -10.7).
+            # A bell puts the gain in 6-12 kHz where the corpus says hats live
+            # and leaves 12-20 kHz alone.
+            "8 Filter On A": (E, "On"), "8 Filter Type A": (E, "Bell"),
+            "8 Frequency A": (V, 8000.0), "8 Gain A": (V, 5.5),
+            "8 Q A": (V, 0.7),
+        }, label="CHAT brighten")
+
     # ---- space: a real reverb per decorative voice
     for name, (dev, wet) in SPACE.items():
         di = b.ensure_effect(tracks[name], dev)
@@ -621,7 +649,10 @@ def main(bars, seed):
     # dynamic to be good, it is unmastered — so the limiter should be driven,
     # and the track trims cannot do it (KICK is already at +3.5 dB and a Live
     # fader stops at +6).
-    ps.set_many(-1, 2, {"Ceiling": (V, -0.6), "Input Gain": (V, 5.0),
+    # 7.0, not 5.0: brightening the closed hat added HF the limiter has to
+    # hold down, and LUFS fell -8.1 -> -10.7 with the EQ in. This buys it back
+    # without touching the balance the corpus now agrees with.
+    ps.set_many(-1, 2, {"Ceiling": (V, -0.6), "Input Gain": (V, 7.0),
                         "Release": (V, 200.0), "Auto": (E, "On"), "Mode": (E, "Standard")},
                 label="Limiter")
 

@@ -214,15 +214,20 @@ def analyze(y, sr, cycle_bars=2, tempo_hint=None, labels=None):
     # swing: offbeat-16th timing minus same-role onbeat timing, so systematic
     # onset-detection bias (filter delay, hop quantization) cancels out
     hats = roles.get("HATS", {})
-    swing = 0.0
+    swing = None
     if hats:
         offbeat = [hats["offset_ms"][i] for i in range(n_steps)
                    if i % 4 == 2 and hats["prob"][i] > 0.3]
         onbeat = [hats["offset_ms"][i] for i in range(n_steps)
                   if i % 4 == 0 and hats["prob"][i] > 0.3]
-        if offbeat:
-            base = float(np.median(onbeat)) if onbeat else 0.0
-            swing = float(np.median(offbeat)) - base
+        # Both halves are required. Without on-beat hits there is nothing to
+        # subtract the detector's own bias against, and the raw offbeat offset
+        # gets reported as swing: a pattern that plays ONLY off-8ths read as
+        # "-17 ms swing" purely from onset-detection lag, and comparing that to
+        # references (which do have on-beat hats, so their bias cancels) is
+        # comparing a biased number to an unbiased one.
+        if offbeat and onbeat:
+            swing = float(np.median(offbeat)) - float(np.median(onbeat))
 
     if labels:  # e.g. ("LOW","MID","HIGH") when analyzing a full mix, where
         # the bass line lives in the kick band and role names would overclaim
@@ -230,14 +235,17 @@ def analyze(y, sr, cycle_bars=2, tempo_hint=None, labels=None):
 
     return {"tempo": round(tempo, 1), "downbeat_s": round(float(t0), 3),
             "cycle_bars": cycle_bars, "n_cycles": n_cycles,
-            "swing_ms": round(swing, 1), "roles": roles}
+            "swing_ms": round(swing, 1) if swing is not None else None,
+            "roles": roles}
 
 
 def render_grid(g):
     """The groove as text. Bars separated by |, beats by spaces."""
     n = g["cycle_bars"] * 16
-    lines = [f"tempo {g['tempo']} BPM   {g['n_cycles']} cycles folded   "
-             f"offbeat-16th swing {g['swing_ms']:+.0f} ms"]
+    sw = g.get("swing_ms")
+    lines = [f"tempo {g['tempo']} BPM   {g['n_cycles']} cycles folded   " +
+             (f"offbeat-16th swing {sw:+.0f} ms" if sw is not None else
+              "swing unmeasurable (no on-beat hats to cancel detector bias)")]
     for name, r in g["roles"].items():
         chars = []
         for i in range(n):
@@ -262,7 +270,7 @@ def render_grid(g):
 
 
 def to_json(g):
-    return {"tempo": g["tempo"], "swing_ms": g["swing_ms"],
+    return {"tempo": g["tempo"], "swing_ms": g.get("swing_ms"),
             "n_cycles": g["n_cycles"],
             "roles": {k: {"prob": [round(float(p), 2) for p in r["prob"]],
                           "vel": [round(float(v), 2) for v in r["vel"]],

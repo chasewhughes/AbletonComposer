@@ -101,8 +101,9 @@ def compare_one(render, ref):
                              weights=weights))
     return {"label": ref.get("label", "?"), "similarity": round(total, 3),
             "rotation_steps": rot, "roles": per_role,
-            "swing_delta_ms": round(render.get("swing_ms", 0) -
-                                    ref.get("swing_ms", 0), 1)}
+            "swing_delta_ms": (round(render["swing_ms"] - ref["swing_ms"], 1)
+                               if render.get("swing_ms") is not None and
+                               ref.get("swing_ms") is not None else None)}
 
 
 def self_similarity(refs):
@@ -142,7 +143,7 @@ def role_density_stats(refs):
                  "p10": float(np.percentile(v, 10)),
                  "p90": float(np.percentile(v, 90)), "n": len(v)}
              for k, v in out.items()}
-    sw = [r.get("swing_ms", 0.0) for r in refs]
+    sw = [r["swing_ms"] for r in refs if r.get("swing_ms") is not None] or [0.0]
     stats["_swing_ms"] = {"median": float(np.median(sw)),
                           "p10": float(np.percentile(sw, 10)),
                           "p90": float(np.percentile(sw, 90)), "n": len(sw)}
@@ -213,11 +214,15 @@ def render_report(render_grid, result, refs_by_label=None):
         if r["extra"]:
             L.append(f"  steps you play and it does not: {r['extra']}")
     sw = dens.get("_swing_ms")
-    if sw:
+    mine = render_grid.get("swing_ms")
+    if sw and mine is not None:
         L.append("")
-        L.append(f"swing: you {render_grid.get('swing_ms', 0):+.0f} ms · "
-                 f"references {sw['median']:+.0f} ms "
+        L.append(f"swing: you {mine:+.0f} ms · references {sw['median']:+.0f} ms "
                  f"[{sw['p10']:+.0f}..{sw['p90']:+.0f}]")
+    elif sw:
+        L.append("")
+        L.append("swing: unmeasurable on this render (the hat row has no "
+                 "on-beat hits, so detector bias cannot be cancelled)")
     return "\n".join(L)
 
 

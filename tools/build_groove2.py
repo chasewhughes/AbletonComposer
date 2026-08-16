@@ -45,7 +45,11 @@ ROOT = 60
 # voice finishes before it is asked to speak again.
 #   name -> (forged stem, mix dB, sample length s, max playback s or None)
 VOICES = {
-    "KICK":   ("forged_kick_anvil",       -4.5, 0.48, 0.40),
+    # Kick clamped tighter than before. At 0.40 s against a 0.451 s beat the
+    # sample's subharmonic bloom re-peaked inside its own decay: the 25-100 Hz
+    # band fired 7.1 times a second where the Drumcode drum stems fire 2.2.
+    # The kick has to be a transient, not an event that fills the beat.
+    "KICK":   ("forged_kick_anvil",       -4.5, 0.48, 0.30),
     "SUB":    ("forged_sub_anchor",      -18.0, 0.64, 0.34),
     "RUMBLE": ("forged_rumble_tectonic", -27.0, 4.38, 1.60),
     "CHAT":   ("forged_hat_static",       -8.0, 0.14, None),
@@ -59,6 +63,16 @@ VOICES = {
     "HAZE":   ("forged_haze_bed",        -26.0, 4.21, None),
 }
 ACID_DB = -15.0
+# References run their bass stem ~8 dB under the DRUMS STEM (-17.1 vs -9.1
+# measured across the 9 Drumcode singles). The trap: that is a stem-to-stem
+# ratio, and the drums stem is ten voices summed, not the kick track alone.
+# Setting the bass 8 dB under the kick FADER put it 24 dB under the drums bus
+# and it measured -40.4 dB in the render — still inaudible. A synth this far
+# below a dense drum bus needs real gain, and a Live fader stops at +6 dB, so
+# the make-up lives in a Utility. Set from the measured gap: drums stem -13.7,
+# bass stem -40.4, target -8 => +18.7 dB.
+BASS_DB = -12.5
+BASS_GAIN_DB = 18.0
 
 # Per-voice reverb sends, as (device, dry/wet). The render measured CLAP
 # `space` at 0.06 — "a dry flat cramped mix" — because reverb only ever existed
@@ -80,7 +94,7 @@ SECTIONS = {
     "OHAT":   (3, 16), "PERC": (5, 16), "TICK": (9, 16),
     "WOOD":   (7, 14), "BELL": (9, 16), "SCRAPE": (11, 16),
     "RUMBLE": (1, 16), "THROAT": (9, 16), "HAZE": (1, 16),
-    "ACID":   (5, 16),
+    "ACID":   (5, 16), "BASS": (1, 16),
 }
 
 
@@ -254,9 +268,42 @@ def kick_pattern(bars, rng):
 
 
 def sub_pattern(bars):
-    """Sub doubles the kick but only on 1 and 3 — weight without mud."""
-    return [P.note(ROOT, bar * 4 + beat, 0.6, 112)
-            for bar in range(bars) for beat in (0, 2)]
+    """Silent. This voice was a one-shot doubling the kick on 1 and 3, and it
+    was the wrong instrument for the job twice over: it added two more
+    percussive low-band transients per bar to a band already firing three
+    times too often, and because it is a SAMPLE, demucs files it under drums.
+    So the render measured a drums stem holding 97% of the energy and a bass
+    stem 34.6 dB down — the low end read as controlled because there was
+    nothing in it. BASS below does this properly, as a synth, in the gaps."""
+    return []
+
+
+A1 = 33          # 55.0 Hz — the kick measures A1 +6 cents, so the bass agrees
+G1 = 31          # the acid's other degree, an octave down
+
+
+def bass_pattern(bars):
+    """The bassline the render never had: off-8ths, in the kick's gaps.
+
+    Every reference record carries a bass stem about 8 dB under its drums;
+    this render measured 34.6 dB down, because the acid was high-passed at
+    165 Hz to clear the mud and nothing was put back underneath. That is the
+    single reason the low end read as 'controlled' and the groove read as
+    stiff — there was no second low-frequency voice to roll against the kick.
+
+    Off-8ths rather than 16ths: the note has to start and finish between two
+    kicks (0.226 s at 133 BPM), which is what makes a loop roll instead of
+    drone, and it means no sidechain is needed to keep the two apart.
+    """
+    notes = []
+    for bar in range(bars):
+        for beat in range(4):
+            # bar 2 of each pair drops to G on the last off-8th — the acid's
+            # other degree, so the two voices agree instead of merely coexist
+            pitch = G1 if (bar % 2 == 1 and beat == 3) else A1
+            vel = 108 if beat == 0 else 98
+            notes.append(P.note(pitch, bar * 4 + beat + 0.5, 0.44, vel, vdev=-4))
+    return notes
 
 
 def rumble_pattern(bars):
@@ -392,7 +439,34 @@ def main(bars, seed):
                                  "Fade Out": (N, 0.12)},
                         label=f"{name} clamp {max_len:.2f}s")
     acid = b.ensure_track("ACID", "query:Synths#Drift", "Drift")
-    print("tracks: " + " ".join(f"{k}={v}" for k, v in tracks.items()) + f" ACID={acid}")
+    bass = b.ensure_track("BASS", "query:Synths#Drift", "Drift")
+    print("tracks: " + " ".join(f"{k}={v}" for k, v in tracks.items()) +
+          f" ACID={acid} BASS={bass}")
+
+    # ---- bass voice: a clean sub, no resonance, nothing above the low mids.
+    # The acid owns everything over 165 Hz; this owns everything under it, so
+    # the two never compete for the same register the way the old drone did.
+    bt = b.params(bass)
+    for frag, v in [("Osc 1 Shape", 0.0), ("LP Freq", 0.30), ("LP Res", 0.05),
+                    ("Env 1 Attack", 0.0), ("Env 1 Decay", 0.30),
+                    ("Env 1 Sustain", 0.55), ("Env 1 Release", 0.10),
+                    ("Legato On", 0.0), ("Glide Time", 0.0)]:
+        b.set_param(bass, frag, v, table=bt)
+    b.ensure_effect(bass, "EQ Eight")
+    ps.set_many(bass, 1, {
+        # keep the sub, drop everything that would fight the acid or the hats
+        "1 Filter On A": (E, "On"), "1 Filter Type A": (E, "High Pass 48dB"),
+        "1 Frequency A": (V, 32.0),
+        "8 Filter On A": (E, "On"), "8 Filter Type A": (E, "Low Pass 48dB"),
+        "8 Frequency A": (V, 220.0),
+    }, label="BASS EQ")
+    du_bass = b.ensure_effect(bass, "Utility")
+    if du_bass is not None:
+        # Utility's gain parameter is called "Output", and it is normalized
+        # 0..1 across -35..+35 dB (verified by read-back: 0.757 -> 18.0 dB).
+        ps.set_many(bass, du_bass,
+                    {"Output": (N, 0.5 + BASS_GAIN_DB / 70.0)},
+                    label=f"BASS make-up {BASS_GAIN_DB:+.0f} dB")
 
     # ---- acid voice
     # The loop-zoom spectrogram showed this as an unbroken harmonic comb from
@@ -422,6 +496,7 @@ def main(bars, seed):
         "KICK":   (P.apply_groove(kick_pattern(bars, rng), G["straight"], BPM, 0.6, rng)),
         "SUB":    (P.apply_groove(sub_pattern(bars), G["straight"], BPM, 0.6, rng)),
         "RUMBLE": (P.apply_groove(rumble_pattern(bars), G["straight"], BPM, 0.8, rng)),
+        "BASS":   (P.apply_groove(bass_pattern(bars), G["straight"], BPM, 0.5, rng)),
         "CHAT":   (P.apply_groove(chat_pattern(bars, rng), G["swing_58"], BPM, 0.8, rng)),
         "OHAT":   (P.apply_groove(ohat_pattern(bars), G["tight"], BPM, 0.8, rng)),
         "PERC":   (P.apply_groove(perc_pattern(bars, rng), G["tight"], BPM, 1.2, rng)),
@@ -447,6 +522,7 @@ def main(bars, seed):
                                    G["tight"], BPM, 1.5, rng)
 
     tracks["ACID"] = acid
+    tracks["BASS"] = bass
     parts = {k: gate(v, SECTIONS.get(k), bars) for k, v in parts.items()}
     for name, notes in parts.items():
         b.write_clip(tracks[name], notes, bars, f"P3-{name}")
@@ -530,11 +606,13 @@ def main(bars, seed):
                    volume=db_to_live_fader(db + MASTER_TRIM_DB))
     b.live.cmd("set_track_volume", track_index=acid,
                volume=db_to_live_fader(ACID_DB + MASTER_TRIM_DB))
+    b.live.cmd("set_track_volume", track_index=bass,
+               volume=db_to_live_fader(BASS_DB + MASTER_TRIM_DB))
 
-    for name in list(VOICES) + ["ACID"]:
+    for name in list(VOICES) + ["ACID", "BASS"]:
         b.live.cmd("fire_clip", track_index=tracks[name], clip_index=0)
     print("groove v3 firing.")
-    return [tracks[n] for n in list(VOICES) + ["ACID"]]
+    return [tracks[n] for n in list(VOICES) + ["ACID", "BASS"]]
 
 
 if __name__ == "__main__":

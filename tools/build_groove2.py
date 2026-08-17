@@ -101,43 +101,38 @@ SPACE = {
 # the structure ear reported "no audible change" across every render so far.
 # Entries are (first_bar, last_bar) inclusive, 1-based.
 SECTIONS = {
-    # Chase's verdict on v5a: "the instruments all play at the same time and
-    # sound jumbled". Measured, he was exactly right — 13 of 14 voices sounded
-    # together from bar 11, 543 notes over 16 bars, every 16th step occupied,
-    # and four voices stacked in the sub alone. Band BALANCE was inside the
-    # reference distribution the whole time, because balance measures energy,
-    # not how many things are making it. Nothing in the listening loop counted
-    # voices.
+    # Second attempt. The first one staggered ORNAMENTS and produced a bar-RMS
+    # spread of 0.3 dB where the Drumcode references run 2.4-6.3 dB. Rendering
+    # with the limiter and glue bypassed gave 0.5 dB, which killed the theory
+    # that the master chain was flattening it: KICK, BASS and CHAT hold nearly
+    # all the energy and ran all sixteen bars, so adding a -11 dB ornament to a
+    # -4.5 dB kick moves the sum by under a decibel no matter how many you add.
     #
-    # So: three voices cut outright, and each remaining one gets spans it
-    # plays and spans it does not. Entries are lists of (first_bar, last_bar)
-    # inclusive, 1-based; [] means silent.
+    # Real records get their dynamics by taking the LOUD things away. So the
+    # arrangement now cuts the core:
     #
-    #   bars  1-2  KICK BASS CHAT                                   3 voices
-    #   bars  3-4  + OHAT                                           4
-    #   bars  5-8  + PERC                                           5
-    #   bars  9-12 + ACID BELL THROAT, OHAT out                     7-8
-    #   bars 13-16 + TICK, OHAT back, PERC/BELL out                 7
-    "KICK":   [(1, 16)],
-    "BASS":   [(1, 16)],
+    #   bars  1-2   no kick — bass and hats only, an intro
+    #   bars  3-4   kick enters
+    #   bars  5-8   + open hat, perc
+    #   bars  9-12  + acid, bell, throat
+    #   bar    13   BREAKDOWN: kick and bass both out
+    #   bars 14-16  everything returns
+    "KICK":   [(3, 12), (14, 16)],
+    "BASS":   [(1, 12), (14, 16)],
     "CHAT":   [(1, 16)],
-    "OHAT":   [(3, 8), (13, 16)],
-    "PERC":   [(5, 12)],
-    "ACID":   [(9, 16)],
+    "OHAT":   [(5, 8), (14, 16)],
+    "PERC":   [(5, 12), (15, 16)],
+    "ACID":   [(9, 12), (14, 16)],
     "BELL":   [(9, 12)],
     "THROAT": [(9, 16)],
-    "SCRAPE": [(11, 12)],
-    "TICK":   [(13, 16)],
-    # Cut. RUMBLE was a fourth voice in a sub that already holds the kick and
-    # the bass. HAZE was a sustained bed in the same 2-16 kHz the closed and
-    # open hats already occupy. WOOD ran a 3-against-4 dotted-8th cycle whose
-    # whole purpose was to sit across the grid — interesting alone, and the
-    # thing that turns five other voices into porridge.
+    "SCRAPE": [(13, 13)],
+    "TICK":   [(14, 16)],
     "RUMBLE": [],
     "HAZE":   [],
     "WOOD":   [],
     "SUB":    [],
 }
+
 
 
 def gate(notes, spans, bars):

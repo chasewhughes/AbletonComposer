@@ -34,6 +34,15 @@ BANDS = [("sub", 20, 60), ("low", 60, 200), ("mid", 200, 2000),
          ("high", 2000, 8000), ("air", 8000, 18000)]
 LOOP_STEP_MIN = 0.5      # a step is part of the loop if it fires in half the bars
 
+# Bar-to-bar level range across the 19 reference excerpts. This is the check
+# that was missing when a listener said a render "sounds like everything at
+# once": crest measures dynamics WITHIN a bar and every band metric measures
+# energy, so a loop whose sixteen bars are all within half a decibel of each
+# other passed everything. Real records move 7.4 dB between their loudest and
+# quietest bar, and one moves 20.3.
+REF_BAR_SPREAD = {"median": 7.4, "p10": 4.7, "p90": 18.7,
+                  "iqr_median": 4.7, "n": 19}
+
 
 def bar_times(y, sr, tempo, downbeat, beats_t=None):
     """Bar boundaries in seconds, anchored to the TRACKED beats.
@@ -164,11 +173,16 @@ def analyze(y, sr, tempo, downbeat, beats_t=None, drums=None):
                                        abs(rms[i] - med_rms) / 6.0), 3)
         bars.append(row)
 
+    spread = float(rms.max() - rms.min())
+    iqr = float(np.percentile(rms, 90) - np.percentile(rms, 10))
+
     devs = np.array([b["deviation"] for b in bars])
     thresh = float(np.median(devs) + 2.5 * (np.median(np.abs(devs - np.median(devs)))
                                             * 1.4826 + 1e-9))
     outliers = [b for b in bars if b["deviation"] > max(thresh, 0.15)]
-    return {"available": True, "pattern_source": "drum stem" if drums is not None
+    return {"available": True, "bar_spread_db": round(spread, 1),
+            "bar_iqr_db": round(iqr, 1),
+            "pattern_source": "drum stem" if drums is not None
             else "full mix (KICK row includes the bassline)",
             "tempo": round(tempo, 1), "bar_len_s": round(bar_len, 3),
             "n_bars": n_bars, "median_rms_db": round(med_rms, 1),
@@ -183,6 +197,19 @@ def describe(res, max_rows=8):
         return f"bar ear unavailable: {res.get('reason')}"
     L = [f"{res['n_bars']} bars of {res['bar_len_s']:.2f}s at {res['tempo']} BPM; "
          f"loop steps " + ", ".join(f"{k} {v}" for k, v in res["loop"].items())]
+    sp, R = res.get("bar_spread_db"), REF_BAR_SPREAD
+    if sp is not None:
+        if sp < R["p10"]:
+            L.append(f"FLAT: loudest bar is only {sp:.1f} dB over the quietest. "
+                     f"The reference records run {R['median']:.1f} dB "
+                     f"[{R['p10']:.1f}..{R['p90']:.1f}], because they take the "
+                     f"KICK and BASS away, not just the ornaments. Sixteen bars "
+                     f"within a decibel of each other is what 'everything plays "
+                     f"at once' sounds like.")
+        else:
+            L.append(f"bar dynamics {sp:.1f} dB loudest-to-quietest "
+                     f"(references {R['median']:.1f} "
+                     f"[{R['p10']:.1f}..{R['p90']:.1f}]) — in range.")
     outliers = sorted((b for b in res["bars"]
                        if b["bar"] in res["outlier_bars"]),
                       key=lambda b: -b["deviation"])[:max_rows]

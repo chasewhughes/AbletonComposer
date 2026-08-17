@@ -132,6 +132,59 @@ other eight.
   hi-hats score +0.253 on "a wooden percussion block" and +0.136 on "a hi-hat
   cymbal" — which is exactly why the deltas are calibrated on reference hits.
 
+## Auditioning Splice before buying — `audition.py`
+
+`describe_a_sound` returns no audio, so picking a sample from its output is a
+coin flip on filenames that costs a credit per flip (a kick search returned nine
+samples from one pack, identical tags, told apart by suffixes `_smashed`,
+`_boss`, `_gogo`, `_word`). Splice's public sample page embeds a presigned
+preview MP3 — free, no credit — so the measuring stack can run first.
+
+```
+# paste describe_a_sound's markdown straight in
+.venv-analysis/bin/python tools/audition.py --role=kick        < results.md
+.venv-analysis/bin/python tools/audition.py --loop --context=drums < results.md
+```
+
+Output: ranked table, `audition.json`, and a **contact sheet PNG** of mel
+spectrograms — read that, it is the part of a sound Claude can look at, and on
+the ten-kick probe it was the only thing that showed two of the ten were
+double-hits and one had a harmonic stack at 1–2 kHz.
+
+**What a preview is, all measured 2026-08-17 (`--control=preview`, `--ab`):**
+
+| property | finding |
+|---|---|
+| length | exactly half the catalogue duration (2.11→1.06 s, 7.2→3.60 s) |
+| floor | a 0.1 s hat previews as **5.5 ms** — under 0.3 s may be un-auditionable |
+| fidelity | Plattenbau's preview has nothing above ~2 kHz vs 14 kHz bought; best cross-correlation 0.44 at 68 ms, 0.11 vs the file head — **not a faithful excerpt** |
+| loops | biggest spectral jump sits at the exact midpoint, p92.6–99.7 across 7 loops: two segments joined. **Judge timbre, not groove** |
+| drift | `crest_db` +6.5σ, `noisiness_db` −7.7σ; verdict string changed on 3/3 kicks |
+| noise floor | ±0.37 on `oddity` — candidates inside 0.4 are not separable |
+
+Hence two columns: `stable` (mean |z| over features that survive a preview AND
+carry information for the role) ranks; `full` (`oneshot_bank.oddity`) prints for
+context only. `usable_stable` drops role-dead features — `share.high`/`share.air`
+look perfectly stable for a kick because reference kicks hold 0.00–0.08% of
+their power up there, and they were contributing a fixed 1.68 and 0.50 to all
+ten candidates. For a kick what is left is centroid and a bin-quantised
+`peak_hz`, so every run prints a `discrimination` block naming the axes actually
+separating the shortlist, and warns when the order rests on one.
+
+Loop baseline from `--control=loop` over the 18 reference excerpts: real records
+score **0.71 median / 1.04 p90** in `mix` (their own context — the 0.67σ you
+expect from a sample of its own distribution, which is the plumbing check) and
+**1.12 / 1.61** in `drums`. Loops are gain-matched to the corpus before
+measuring, because `ears.tonal_db` is absolute dB and a raw −20 LUFS loop
+against a −7.3 LUFS corpus otherwise ranks by export level, not tone.
+
+Trust `bars` over `tempo`: the bar count comes from duration and the label, the
+tempo column is a beat tracker and it aliased on 7 of 7 loops labelled 134 BPM
+(reading 178 = 4:3, or 108 = 4:5).
+
+**Use it to shortlist three from thirty, buy those, measure the WAVs.** It stops
+credits going to filename roulette; it is not hearing the sample.
+
 ## Reading the groove grid
 
 ```

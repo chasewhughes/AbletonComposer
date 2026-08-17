@@ -36,23 +36,42 @@ What a preview actually is, measured 2026-08-17 rather than assumed:
     which is below the 20 ms `oneshot_bank` needs. Anything under roughly 0.3 s
     in the catalogue may be un-auditionable, and the report says so per
     candidate instead of dropping it.
-  * not scrambled. The 3.60 s loop preview is 2.013 bars at its labelled
-    134 BPM, with 28 clean onsets and 1 frame in 311 below -60 dB. The rhythm
-    is intact; what is missing is the back half.
-  * lossy, and the damage is not evenly spread. `--control=preview` pairs each
-    of the already-bought Phase 3 samples with its own preview and measures the
-    drift per feature. Peak frequency, the highmid/high/air shares and ZCR move
-    by 0.00-0.08 sigma. Crest moves +6.5 and noisiness -7.7, and the
-    whole-sample verdict string changed on 3 of 3 controlled kicks.
+  * assembled from two segments. The 3.60 s loop preview is a clean 2.013 bars
+    at its labelled 134 BPM with 28 onsets and no silent gaps — but its largest
+    spectral discontinuity sits at exactly its midpoint, ranking at the 92.6 to
+    99.7 percentile of all frame transitions across seven loops tested. Each
+    half is real audio; the sequence across the seam is not the sample's
+    arrangement. Judge timbre from a loop preview, not groove. `seam_pct`
+    reports this per candidate.
+  * NOT a faithful excerpt. `--ab` puts a bought WAV over its own preview:
+    Plattenbau's WAV is a 2.11 s kick with its transient at 0 ms reaching
+    14 kHz, and the preview is 1.06 s, onset at 42 ms, with nothing above
+    ~2 kHz. Best normalised cross-correlation 0.44 at a 68 ms offset; against
+    the head of the file, 0.11. The URL says `-scrambled` and it means it.
+  * lossy unevenly. `--control=preview` pairs each already-bought Phase 3
+    sample with its own preview and measures per-feature drift. Peak frequency
+    moves 0.00 sigma; crest +6.5 and noisiness -7.7, and the whole-sample
+    verdict string changed on 3 of 3 controlled kicks.
 
-That last point is why ranking runs on `AUDITION_STABLE` — the six features the
-control shows survive the trip — instead of on the full `oneshot_bank` reading.
-The full reading still prints beside it, because it is the right number for a
-bought WAV and the wrong one for a preview.
+So ranking runs on `AUDITION_STABLE` filtered by `usable_stable` — the features
+that both survive the trip AND carry information for the role in question. That
+second filter matters more than it looks: `share.high` and `share.air` are
+beautifully stable for a kick because reference kicks hold 0.00-0.08% of their
+power up there, so a z-score on them is amplified floor. They were contributing
+a fixed 1.68 and 0.50 to all ten candidates of the first probe and making the
+aggregate look better-founded than it was. Dropped for kicks, kept for hats.
 
-The measured noise floor on full oddity is ~0.37, so candidates within 0.4 of
-each other are not separable from previews. The tool says so in its own footer
-instead of implying a precision it does not have.
+What survives for a kick is centroid and peak frequency, and `peak_hz` is
+quantised to FFT bins — two distinct values across ten candidates. Which is to
+say: a preview can sort dark-and-subby from bright-and-clicky, and it cannot
+rank near-identical siblings from one pack. The `discrimination` block prints
+which axes are actually separating a shortlist so that limit is visible in
+every run, and the measured noise floor on full oddity is ~0.37, so candidates
+within 0.4 of each other are not separable here at all.
+
+The honest summary: this tool stops credits being spent on filename roulette
+and it does not replace hearing the sample. Use it to shortlist three from
+thirty, buy those, then measure the WAVs and let your ears pick.
 
 Usage
 -----
@@ -72,9 +91,11 @@ spectrogram is the part of a sound Claude can actually look at.
 
 Ranking
 -------
-One-shots are ranked by `oneshot_bank.oddity`: median |z| over the core
-features against 1408 real kicks / 797 hats / 1505 percussion hits cut from the
-Drumcode drum stems. Low = behaves like the reference role.
+One-shots are scored against the reference bank cut from the Drumcode drum
+stems — 1408 real kicks, 797 hats, 1505 percussion hits. Two columns print:
+`stable` (mean |z| over the preview-usable features, which is what the order
+uses) and `full` (`oneshot_bank.oddity`, all ten core features, correct for a
+bought WAV and optimistic-to-wrong for a preview). Low = behaves like the role.
 
 That default is deliberate and it is worth saying why, because this repo's goal
 is to invent a genre, not to average one. The signature is supposed to come
@@ -91,7 +112,6 @@ tempo agrees with the catalogue BPM.
 """
 import argparse
 import concurrent.futures as futures
-import hashlib
 import json
 import pathlib
 import re
@@ -436,6 +456,17 @@ LOOP_METRICS = [
 ]
 
 
+# What a real record scores on the loop path, measured by `--control=loop` over
+# the 18 Drumcode reference excerpts on 2026-08-17: (median, p90).
+#
+# 'mix' is the plumbing check — those excerpts ARE the mix corpus, and 0.71 is
+# almost exactly the 0.67 sigma you expect when drawing a sample from its own
+# distribution, so the alignment, key names and context resolution are sound.
+# 'drums' is the number that matters for auditioning a drum loop, and it is
+# higher (1.12) because a full-mix excerpt is not a drum stem.
+LOOP_REF = {"mix": (0.71, 1.04), "drums": (1.12, 1.61)}
+
+
 def align_loudness(y, cal, ctx):
     """Gain the preview to the corpus's median LUFS before measuring it.
 
@@ -474,6 +505,34 @@ def align_loudness(y, cal, ctx):
         out = out * (0.999 / peak)
         gain_db += 20 * np.log10(0.999 / peak)
     return out, round(gain_db, 2), lufs
+
+
+def seam_percentile(y):
+    """Where the midpoint's spectral jump ranks among all frame transitions.
+
+    Splice serves previews from a path with `-scrambled` in it, and on loops the
+    contact sheet shows a vertical line at exactly half way. Measured over seven
+    134 BPM percussion loops, the midpoint transition ranked at the 92.6, 97.6,
+    98.9, 99.0, 99.2, 99.7 and 92.6 percentile of every adjacent-frame cosine
+    distance in the file — i.e. the single biggest spectral discontinuity in the
+    preview sits at its own midpoint, every time.
+
+    So a loop preview is two segments joined, not the first half of the sample.
+    The timbre of each segment is real; the sequence ACROSS the seam is not the
+    sample's arrangement, which is exactly the thing you would otherwise judge
+    groove from. High values here mean 'trust the sound, not the pattern'.
+    """
+    import librosa
+    if len(y) < 4096:
+        return None
+    S = np.abs(librosa.stft(y, n_fft=2048, hop_length=256))
+    S = S / (np.linalg.norm(S, axis=0, keepdims=True) + 1e-12)
+    dist = 1 - np.sum(S[:, 1:] * S[:, :-1], axis=0)
+    if len(dist) < 16:
+        return None
+    mid = len(y) // 2 // 256
+    peak = float(dist[max(0, mid - 3):mid + 4].max())
+    return round(100.0 * float((dist < peak).mean()), 1)
 
 
 def measure_loop(cand, context, cal, align=True):
@@ -520,14 +579,28 @@ def measure_loop(cand, context, cal, align=True):
     if tempo and cand.get("bpm"):
         r = float(tempo) / float(cand["bpm"])
         cand["tempo_ratio"] = round(r, 3)
-        cand["tempo_ok"] = any(abs(r - m) < 0.04
-                               for m in (0.5, 1.0, 2.0))
+        # Named aliases rather than a pass/fail. On seven percussion loops all
+        # labelled 134 BPM the detector returned 178.2 (the 4:3 alias this kit
+        # already knows about, from hits on off-8ths) or 107.7 (4:5), and a flag
+        # that fires on 7 of 7 is one nobody reads. The bar count below is the
+        # trustworthy check: it comes from duration and the label, not from beat
+        # tracking, and it read 1.01 / 2.01 / 4.00 bars for these same loops.
+        aliases = {0.5: "half-time", 0.75: "3:4", 0.8: "4:5", 1.0: "matches",
+                   1.25: "5:4", 4 / 3: "4:3", 1.5: "3:2", 2.0: "double-time"}
+        near = [name for m, name in aliases.items() if abs(r - m) < 0.04]
+        cand["tempo_alias"] = near[0] if near else None
     onsets = librosa.onset.onset_detect(y=y, sr=SR, units="time",
                                         backtrack=True)
     cand["onsets"] = int(len(onsets))
+    cand["seam_pct"] = seam_percentile(y)
     if cand.get("bpm"):
         bars = (len(y) / SR) / (4 * 60.0 / float(cand["bpm"]))
         cand["preview_bars"] = round(bars, 2)
+        # Does the label survive arithmetic? A loop whose length is not a clean
+        # bar count at its stated BPM is either mislabelled or not a loop, and
+        # that is worth knowing before it goes into a Simpler at that tempo.
+        cand["bars_ok"] = any(abs(bars - m) < 0.06
+                              for m in (0.5, 1, 2, 3, 4, 6, 8, 12, 16))
     cand["rank_key"] = (cand["median_abs_z"]
                         if cand["median_abs_z"] is not None else float("inf"))
     return cand
@@ -745,6 +818,61 @@ def control_loop(context, cal, limit=18):
 
 # ------------------------------------------------------------------- picture
 
+def ab_figure(bought, cand, out_path):
+    """Bought WAV over its own preview, plus how well they line up.
+
+    This is the diagnostic that corrected this tool's own premise. Plattenbau's
+    bought WAV is a 2.11 s kick with a transient at 0 ms reaching 14 kHz; its
+    preview is 1.06 s, onset at 42 ms, with nothing above ~2 kHz. Best
+    normalised cross-correlation is 0.44 at a 68 ms offset, and 0.11 against
+    the head of the file — so the preview is NOT the first half of the sample.
+    Run this before trusting a preview on any new role.
+    """
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    import librosa
+    import spectro
+
+    yb, _ = librosa.load(str(bought), sr=SR, mono=True)
+    yp, _ = librosa.load(cand["wav"], sr=SR, mono=True)
+
+    def onset_ms(y):
+        env = np.abs(y)
+        above = np.nonzero(env > 0.02 * float(env.max()))[0]
+        return (int(above[0]) if len(above) else 0) / SR * 1000
+
+    nb, npv = yb / (np.linalg.norm(yb) + 1e-12), yp / (np.linalg.norm(yp) + 1e-12)
+    corr = np.correlate(nb, npv, "valid") if len(yb) >= len(yp) else np.array([0.0])
+    head = yb[:len(yp)]
+    head_corr = float(np.dot(head / (np.linalg.norm(head) + 1e-12), npv))
+    stats = {"best_offset_ms": round(float(np.argmax(np.abs(corr))) / (SR / 1000), 1),
+             "best_corr": round(float(np.max(np.abs(corr))), 3),
+             "head_corr": round(head_corr, 3),
+             "bought_s": round(len(yb) / SR, 3), "preview_s": round(len(yp) / SR, 3),
+             "bought_onset_ms": round(onset_ms(yb), 1),
+             "preview_onset_ms": round(onset_ms(yp), 1)}
+
+    fig, axes = plt.subplots(2, 1, figsize=(11, 5.5))
+    fig.patch.set_facecolor("#101014")
+    for ax, (y, lab) in zip(axes, [(yb, f"BOUGHT {stats['bought_s']:.2f}s "
+                                       f"onset {stats['bought_onset_ms']:.0f}ms"),
+                                   (yp, f"PREVIEW {stats['preview_s']:.2f}s "
+                                        f"onset {stats['preview_onset_ms']:.0f}ms")]):
+        spectro._draw_mel(ax, spectro._mel(y, SR), SR, len(y) / SR)
+        spectro._style_ax(ax)
+        ax.set_title(lab, color="#d8d8e0", fontsize=9)
+    fig.suptitle(f"{pathlib.Path(bought).name}   best corr "
+                 f"{stats['best_corr']:.2f} at {stats['best_offset_ms']:.0f} ms, "
+                 f"vs head {stats['head_corr']:.2f}",
+                 color="#f0f0f4", fontsize=10)
+    fig.tight_layout(rect=(0, 0, 1, 0.94))
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_path, dpi=110, facecolor=fig.get_facecolor())
+    plt.close(fig)
+    return stats
+
+
 def contact_sheet(cands, out_path, title):
     """One PNG, one mel spectrogram per candidate.
 
@@ -808,9 +936,13 @@ def render_table(cands, role, loop, prefer):
             notes = []
             if c.get("truncated"):
                 notes.append(f"half ({c['preview_s']:.1f}/{c['catalog_s']:.1f}s)")
-            if c.get("tempo_ok") is False:
-                notes.append(f"tempo {c.get('detected_tempo')} vs "
-                             f"{c.get('bpm')} label")
+            if c.get("bars_ok") is False:
+                notes.append(f"NOT a clean bar count at {c.get('bpm')} BPM "
+                             f"({c.get('preview_bars')} bars)")
+            elif c.get("tempo_alias") and c["tempo_alias"] != "matches":
+                notes.append(f"pulse reads {c['tempo_alias']}")
+            if (c.get("seam_pct") or 0) >= 90:
+                notes.append(f"seam at midpoint (p{c['seam_pct']:.0f})")
             if c.get("outside_axes"):
                 notes.append("out: " + ",".join(
                     a.split(".")[-1] for a in c["outside_axes"][:4]))
@@ -854,14 +986,26 @@ def render_table(cands, role, loop, prefer):
     return "\n".join(L)
 
 
-def footer(cands, loop, prefer):
+def footer(cands, loop, prefer, dropped=()):
     ok = [c for c in cands if not c.get("error")]
     L = ["", "how to read this"]
     if loop:
-        L.append("  med|z|  median |z| over tonal balance, level and transient "
-                 "density vs the")
-        L.append("          calibration corpus for this context. Low = sits "
-                 "where the references sit.")
+        L.append("  med|z|  median |z| over tonal balance, crest, pulse and "
+                 "transient density")
+        L.append("          vs the calibration corpus for this context, after "
+                 "gain-matching to it.")
+        L.append(f"          Real records through this same path score "
+                 f"{LOOP_REF['mix'][0]:.2f} median / "
+                 f"{LOOP_REF['mix'][1]:.2f} p90 in")
+        L.append(f"          'mix' and {LOOP_REF['drums'][0]:.2f} / "
+                 f"{LOOP_REF['drums'][1]:.2f} in 'drums' "
+                 f"(--control=loop). Below ~1.6 is")
+        L.append("          indistinguishable from a real record on these "
+                 "axes; 4+ is not close.")
+        L.append("  bars    preview length in bars at the labelled BPM. This "
+                 "is the trustworthy")
+        L.append("          tempo check; the `tempo` column is a beat tracker "
+                 "and it aliases.")
     else:
         L.append("  stable  mean |z| over the four features a preview "
                  "preserves: peak_hz,")
@@ -890,6 +1034,15 @@ def footer(cands, loop, prefer):
     L.append("  * previews arrive at HALF the catalogue length, one-shots and "
              "loops alike.")
     L.append("    Nothing here can see the back half of any sample.")
+    if loop:
+        n_seam = sum(1 for c in ok if (c.get("seam_pct") or 0) >= 90)
+        if n_seam:
+            L.append(f"  * {n_seam} of {len(ok)} previews put their biggest "
+                     f"spectral jump at their own")
+            L.append("    midpoint: the preview is two segments joined, so the "
+                     "pattern across the")
+            L.append("    seam is not the sample's arrangement. Judge timbre "
+                     "here, not groove.")
     L.append("  * the codec moves crest by ~+6.5 sigma and noisiness by ~-7.7 "
              "sigma, and the")
     L.append("    whole-sample verdict changed on 3 of 3 controlled kicks. "
@@ -913,6 +1066,10 @@ def footer(cands, loop, prefer):
         disc = discrimination(ok)
         if disc:
             L.append("")
+            if dropped:
+                L.append("features dropped as uninformative for this role:")
+                for k, why in dropped:
+                    L.append(f"  {k:16s}{why}")
             L.append("what is actually separating these candidates")
             for k, sp, n in disc:
                 bar = "#" * min(28, int(sp * 6))
@@ -994,6 +1151,22 @@ def main():
                     help="already-purchased WAVs, for --control=preview")
     a = ap.parse_args()
 
+    if a.ab:
+        text = "\n".join(a.pages) if a.pages else sys.stdin.read()
+        cands = parse_candidates(text)
+        if not cands:
+            sys.exit("--ab needs the sample's page URL as a positional")
+        c = acquire(cands[0], refetch=a.refetch)
+        if not c.get("wav"):
+            sys.exit(f"no preview: {c.get('error')}")
+        out = pathlib.Path(a.out or OUT_ROOT / "ab") / (
+            pathlib.Path(a.ab).stem + "_ab.png")
+        st = ab_figure(pathlib.Path(a.ab).expanduser(), c, out)
+        for k, v in st.items():
+            print(f"  {k:20s}{v}")
+        print(f"\nwrote {out}")
+        return
+
     if a.control == "loop":
         cal = calibrate.load()
         if cal is None:
@@ -1030,6 +1203,7 @@ def main():
     out_dir = pathlib.Path(a.out) if a.out else OUT_ROOT / label
 
     bank = cal = None
+    dropped = ()
     if a.role:
         bank = oneshot_bank.load()
         if bank is None:
@@ -1037,6 +1211,10 @@ def main():
                      "  .venv-listen/bin/python tools/oneshot_bank.py build")
         if not bank.has(a.role):
             sys.exit(f"the bank has no '{a.role}' — it holds {bank.roles}")
+        keep, dropped = usable_stable(bank, a.role)
+        if not keep:
+            sys.exit(f"no preview-stable feature carries information for "
+                     f"'{a.role}' — nothing to rank on")
     else:
         cal = calibrate.load()
         if cal is None:
@@ -1089,7 +1267,7 @@ def main():
                   file=sys.stderr)
 
     table = render_table(ordered, a.role, a.loop, a.prefer)
-    text_out = table + "\n" + footer(ordered, a.loop, a.prefer)
+    text_out = table + "\n" + footer(ordered, a.loop, a.prefer, dropped)
 
     out_dir.mkdir(parents=True, exist_ok=True)
     payload = {"label": label, "role": a.role, "loop": a.loop,

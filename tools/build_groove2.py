@@ -101,21 +101,65 @@ SPACE = {
 # the structure ear reported "no audible change" across every render so far.
 # Entries are (first_bar, last_bar) inclusive, 1-based.
 SECTIONS = {
-    "KICK":   (1, 16), "SUB": (1, 16), "CHAT": (1, 16),
-    "OHAT":   (3, 16), "PERC": (5, 16), "TICK": (9, 16),
-    "WOOD":   (7, 14), "BELL": (9, 16), "SCRAPE": (11, 16),
-    "RUMBLE": (1, 16), "THROAT": (5, 16), "HAZE": (1, 16),
-    "ACID":   (5, 16), "BASS": (1, 16),
+    # Chase's verdict on v5a: "the instruments all play at the same time and
+    # sound jumbled". Measured, he was exactly right — 13 of 14 voices sounded
+    # together from bar 11, 543 notes over 16 bars, every 16th step occupied,
+    # and four voices stacked in the sub alone. Band BALANCE was inside the
+    # reference distribution the whole time, because balance measures energy,
+    # not how many things are making it. Nothing in the listening loop counted
+    # voices.
+    #
+    # So: three voices cut outright, and each remaining one gets spans it
+    # plays and spans it does not. Entries are lists of (first_bar, last_bar)
+    # inclusive, 1-based; [] means silent.
+    #
+    #   bars  1-2  KICK BASS CHAT                                   3 voices
+    #   bars  3-4  + OHAT                                           4
+    #   bars  5-8  + PERC                                           5
+    #   bars  9-12 + ACID BELL THROAT, OHAT out                     7-8
+    #   bars 13-16 + TICK, OHAT back, PERC/BELL out                 7
+    "KICK":   [(1, 16)],
+    "BASS":   [(1, 16)],
+    "CHAT":   [(1, 16)],
+    "OHAT":   [(3, 8), (13, 16)],
+    "PERC":   [(5, 12)],
+    "ACID":   [(9, 16)],
+    "BELL":   [(9, 12)],
+    "THROAT": [(9, 16)],
+    "SCRAPE": [(11, 12)],
+    "TICK":   [(13, 16)],
+    # Cut. RUMBLE was a fourth voice in a sub that already holds the kick and
+    # the bass. HAZE was a sustained bed in the same 2-16 kHz the closed and
+    # open hats already occupy. WOOD ran a 3-against-4 dotted-8th cycle whose
+    # whole purpose was to sit across the grid — interesting alone, and the
+    # thing that turns five other voices into porridge.
+    "RUMBLE": [],
+    "HAZE":   [],
+    "WOOD":   [],
+    "SUB":    [],
 }
 
 
-def gate(notes, span, bars):
-    """Keep only notes inside a (first_bar, last_bar) inclusive window."""
-    if not span:
+def gate(notes, spans, bars):
+    """Keep only notes inside any of the (first_bar, last_bar) windows.
+
+    A list, not a single span: a voice that only ever enters can build but it
+    can never make room. Leaving is what turns a stack of loops into an
+    arrangement, and it needs more than one window per voice.
+    """
+    if spans is None:
         return notes
-    lo = (span[0] - 1) * 4
-    hi = min(span[1], bars) * 4
-    return [n for n in notes if lo <= n["start_time"] < hi]
+    if not spans:
+        return []
+    if isinstance(spans[0], int):          # tolerate a bare (first, last)
+        spans = [spans]
+    keep = []
+    for n in notes:
+        for first, last in spans:
+            if (first - 1) * 4 <= n["start_time"] < min(last, bars) * 4:
+                keep.append(n)
+                break
+    return keep
 # Everything is written with headroom, then trimmed as a block so the limiter
 # shapes rather than arranges. Tuned so LUFS lands near the reference -11.5.
 MASTER_TRIM_DB = 8.0
@@ -557,8 +601,12 @@ def main(bars, seed):
     for name, notes in parts.items():
         b.write_clip(tracks[name], notes, bars, f"P3-{name}")
     print("notes: " + " ".join(f"{k}={len(v)}" for k, v in parts.items()))
-    print("sections: " + " ".join(f"{k}{SECTIONS[k]}" for k in SECTIONS
-                                  if SECTIONS[k] != (1, 16)))
+    active = {}
+    for name, notes in parts.items():
+        for n in notes:
+            active.setdefault(int(n["start_time"] // 4) + 1, set()).add(name)
+    print("voices per bar: " + " ".join(f"{b}:{len(active.get(b, ()))}"
+                                        for b in range(1, bars + 1)))
 
     # ---- closed hat: move its energy up an octave.
     # The reference-derived one-shot bank puts forged_hat_static 2.8 sigma

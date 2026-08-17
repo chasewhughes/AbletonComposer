@@ -122,14 +122,46 @@ CENTS_CI_FLOOR = 3.0      # never report an interval tighter than the bench
 BEAT_CYCLES_MIN = 1.0
 
 
-def hz_to_note(f):
-    """(name, octave, cents-off-equal-temperament) for a frequency in Hz."""
+def hz_to_note(f, tune_cents=0.0):
+    """(name, octave, cents) for a frequency, against a reference pitch of
+    A = 440 * 2**(tune_cents/1200).
+
+    `tune_cents` is not decoration. Nothing in this corpus is at concert
+    pitch — five of the nine Drumcode references sit 30-45 cents off A440 on
+    every stem at once. Rounding those to the nearest A440 semitone puts the
+    note within a few cents of the boundary, so once the pitch estimator got
+    accurate enough to resolve that, single physical notes started splitting
+    across two adjacent pitch classes and the tool invented minor 2nds
+    between a source and itself. The reference is measured per render (see
+    `tuning_from_frames`) and everything quantises against it.
+    """
     if not f or f <= 0:
         return None, None, 0.0
-    midi = 69 + 12 * np.log2(f / 440.0)
+    midi = 69 + 12 * np.log2(f / 440.0) - tune_cents / 100.0
     nearest = int(round(midi))
     cents = (midi - nearest) * 100
     return PC_NAMES[nearest % 12], nearest // 12 - 1, float(cents)
+
+
+def tuning_from_frames(frames, default=0.0):
+    """Reference pitch of the whole render, in cents from A440.
+
+    A circular mean over the 100-cent semitone, energy-weighted, across every
+    tracked frame of every source. Circular because the quantity wraps: a
+    frame reading +48 cents and one reading -48 are 4 cents apart, and a
+    plain mean of those two would say 0 — the exact halfway point they are
+    furthest from.
+    """
+    if not frames:
+        return default
+    ang = np.array([f["cents"] for f in frames]) * 2 * np.pi / 100.0
+    w = np.array([f.get("w", 1.0) for f in frames])
+    if w.sum() <= 0:
+        return default
+    z = np.sum(w * np.exp(1j * ang)) / w.sum()
+    if abs(z) < 0.15:          # no agreement at all — do not invent a tuning
+        return default
+    return float(np.angle(z) * 100.0 / (2 * np.pi))
 
 
 def role_of(name):
@@ -368,11 +400,16 @@ def overlap(mask_a, mask_b, hop_s=ACT_HOP):
     }
 
 
-def root_track(y, sr, hop_s=0.25, fmin=30.0, fmax=1200.0, min_strength=3.0):
-    """Follow the sounding root frame by frame and histogram the result."""
+def track_frames(y, sr, hop_s=0.25, fmin=30.0, fmax=1200.0, min_strength=3.0):
+    """Sounding root, frame by frame, with no note naming yet.
+
+    Split out from `root_track` because naming a frame needs the render's
+    reference pitch, and the reference pitch is measured FROM the frames of
+    every source at once. Doing it in one pass would mean quantising against
+    A440 first, which is the thing that splits notes in two.
+    """
     hop = max(1, int(hop_s * sr))
     win = min(len(y), max(hop * 2, int(0.4 * sr)))
-    hist = np.zeros(12)
     frames = []
     for s in range(0, max(1, len(y) - win + 1), hop):
         seg = y[s:s + win]
@@ -382,13 +419,26 @@ def root_track(y, sr, hop_s=0.25, fmin=30.0, fmax=1200.0, min_strength=3.0):
         f0, strength, ci, n_part = root_hz_ci(seg, sr, fmin=fmin, fmax=fmax)
         if f0 <= 0 or strength < min_strength:
             continue
-        name, octv, cents = hz_to_note(f0)
+        _n, _o, cents = hz_to_note(f0)
+        frames.append({"t": round(s / sr, 2), "hz": float(f0), "w": w,
+                       "cents": float(cents), "ci": round(ci, 1),
+                       "partials": n_part})
+    return frames
+
+
+def note_stats(frames, tune_cents=0.0):
+    """Histogram tracked frames into pitch classes against a reference pitch."""
+    hist = np.zeros(12)
+    named = []
+    for fr in frames:
+        name, octv, cents = hz_to_note(fr["hz"], tune_cents)
         if name is None:
             continue
-        hist[PC_NAMES.index(name)] += w
-        frames.append({"t": round(s / sr, 2), "hz": round(f0, 2),
-                       "note": f"{name}{octv}", "cents": round(cents, 1),
-                       "ci": round(ci, 1), "partials": n_part})
+        hist[PC_NAMES.index(name)] += fr["w"]
+        named.append({"t": fr["t"], "hz": round(fr["hz"], 2),
+                      "note": f"{name}{octv}", "cents": round(cents, 1),
+                      "ci": fr["ci"], "partials": fr["partials"]})
+    frames = named
     total = hist.sum()
     if total <= 0 or not frames:
         return {"hist": [0.0] * 12, "concentration": 0.0, "top": [],
@@ -445,6 +495,13 @@ def root_track(y, sr, hop_s=0.25, fmin=30.0, fmax=1200.0, min_strength=3.0):
     }
 
 
+def root_track(y, sr, hop_s=0.25, fmin=30.0, fmax=1200.0, min_strength=3.0,
+               tune_cents=0.0):
+    """Follow the sounding root frame by frame and histogram the result."""
+    return note_stats(track_frames(y, sr, hop_s=hop_s, fmin=fmin, fmax=fmax,
+                                   min_strength=min_strength), tune_cents)
+
+
 def out_of_key_share(chroma, tonic_pc, mode):
     """Fraction of pitch-class energy outside the detected diatonic scale."""
     if tonic_pc is None or chroma.sum() <= 0:
@@ -454,18 +511,30 @@ def out_of_key_share(chroma, tonic_pc, mode):
     return float(sum(chroma[i] for i in range(12) if i not in members))
 
 
-def read_source(y, sr, name="mix", role=None):
-    """Every pitch reading for one audio source."""
+def fmin_for(name, role):
+    """Lowest root worth looking for. A bass or a kick lives under 45 Hz; a
+    lead does not, and letting it look down there finds the bass instead."""
+    return 30.0 if role in ("mixture", "percussive") or "bass" in name.lower() \
+        else 45.0
+
+
+def read_source(y, sr, name="mix", role=None, tune_cents=0.0, frames=None):
+    """Every pitch reading for one audio source.
+
+    `frames` may be handed in precomputed (see `analyze`) so the expensive
+    root tracking runs once per source rather than once per tuning guess.
+    """
     role = role or role_of(name)
     if float(np.max(np.abs(y))) < 1e-4:
         return {"name": name, "role": role, "silent": True}
-    fmin = 30.0 if role in ("mixture", "percussive") or "bass" in name.lower() \
-        else 45.0
-    notes = root_track(y, sr, fmin=fmin)
+    fmin = fmin_for(name, role)
+    if frames is None:
+        frames = track_frames(y, sr, fmin=fmin)
+    notes = note_stats(frames, tune_cents)
     ch = chroma_vector(y, sr)
     tonic, mode, conf, ranked = detect_key(ch)
     f0, f0_strength, f0_ci, _n = root_hz_ci(y, sr, fmin=fmin)
-    note, octv, cents = hz_to_note(f0)
+    note, octv, cents = hz_to_note(f0, tune_cents)
     usable = notes["concentration"] >= CONC_PITCHED_MIN and notes["n_frames"] >= 4
     return {
         "name": name,
@@ -656,33 +725,6 @@ def _together(p):
             f"({ov['longest_s']:.2f} s at a stretch)")
 
 
-def track_tuning_cents(readings, loud):
-    """The reference pitch the RECORD is tuned to, in cents from A440.
-
-    Nothing here is tuned to concert pitch. Five of the nine Drumcode
-    references sit 30-45 cents off A440 across every stem at once, and the
-    OFF PITCH check — which measured each source against equal temperament —
-    duly reported all of them as needing a retune. A source is out of tune
-    when it disagrees with the rest of THIS track, so that is the ruler.
-    """
-    vals, wts = [], []
-    for r in readings:
-        if r.get("silent") or not r.get("usable_pitch") or \
-                r["name"] not in loud:
-            continue
-        n = r["notes"]
-        if n.get("cents_spread", 0.0) > 60 or not n.get("pitch_reliable", True):
-            continue
-        vals.append(n["median_cents"])
-        wts.append(10 ** (r.get("rms_db", -60.0) / 20))
-    if not vals:
-        return 0.0, 0
-    order = np.argsort(vals)
-    v = np.array(vals)[order]
-    w = np.cumsum(np.array(wts)[order])
-    return float(v[np.searchsorted(w, w[-1] / 2)]), len(vals)
-
-
 def analyze(sources, sr):
     """sources: {name: mono array}. Returns the full harmonic reading.
 
@@ -693,7 +735,21 @@ def analyze(sources, sr):
     the report headline, and a headline that fires on 13 of 18 released
     Drumcode records is noise, not criticism.
     """
-    readings = [read_source(y, sr, name=n) for n, y in sources.items()]
+    # Two passes over the pitch track. The first collects raw frequencies and
+    # measures what pitch this render is tuned to; the second names the notes
+    # against that reference. See hz_to_note for why the order matters.
+    tracked = {}
+    for n, y in sources.items():
+        if float(np.max(np.abs(y))) < 1e-4:
+            continue
+        tracked[n] = track_frames(y, sr, fmin=fmin_for(n, role_of(n)))
+    # The mixture, when there is one, is the whole record speaking at once and
+    # is the best single witness to its tuning; stems inherit its verdict.
+    witness = tracked.get("mix") or [f for fs in tracked.values() for f in fs]
+    tune = tuning_from_frames(witness)
+    readings = [read_source(y, sr, name=n, tune_cents=tune,
+                            frames=tracked.get(n))
+                for n, y in sources.items()]
     cons = consensus_key(readings)
     masks = activity_masks(sources, readings, sr)
     pairs = agreement(readings, masks=masks)
@@ -711,24 +767,40 @@ def analyze(sources, sr):
             semis = [h for h in p["harsh_pairs"]
                      if h[2] == "minor 2nd" and h[3] >= 0.05]
             if p["semitones"] in (1, 11) or semis:
-                note = PC_NAMES[[r for r in readings
-                                 if r["name"] == p["b"]][0]["notes"]["top_pc"]] \
-                    if p["semitones"] in (1, 11) else semis[0][1]
+                # Name the two notes that are actually a semitone apart. This
+                # used to print the drum's top note against the bass's top
+                # note whatever the reason for firing, which on a source with
+                # a secondary pitch class produced "drums is tuned to G, bass
+                # plays G — a semitone apart".
+                if p["semitones"] in (1, 11):
+                    drum_note, bass_note = p["a_note"], p["b_note"]
+                else:
+                    drum_note, bass_note = semis[0][0], semis[0][1]
                 # A kick and a bass that take turns are what sidechaining is
                 # FOR. The semitone only rubs while both are sounding.
                 if share <= ALTERNATING_MAX:
                     observations.append(
                         f"kick/bass semitone: {p['a']} is tuned to "
-                        f"{p['a_note']} ({p['a_root']}) and {p['b']} plays "
-                        f"{note}, but they {when} — they take turns, so this "
-                        f"reads as a pitch step, not a rub.")
+                        f"{drum_note} ({p['a_root']}) and {p['b']} plays "
+                        f"{bass_note}, but they {when} — they take turns, so "
+                        f"this reads as a pitch step, not a rub.")
                 else:
-                    problems.append(
-                        f"KICK/BASS RUB: {p['a']} is tuned to {p['a_note']} "
-                        f"({p['a_root']}), {p['b']} plays {note} — a semitone "
-                        f"apart in the same octave, {when}. Retune the drum "
-                        f"or move the part; a sidechain will duck it, not "
-                        f"fix it.")
+                    # An OBSERVATION, not a fault. Measured over the 18
+                    # reference excerpts this check fired on 7 of them —
+                    # Love Within, Your Mind, KO twice, Move Your Body twice.
+                    # Those are released Drumcode records whose kick and bass
+                    # are demonstrably fine, so a check that accuses them is
+                    # describing something normal. The cause is that a demucs
+                    # drums stem carries bass bleed, and a kick's pitch sweeps
+                    # during its decay, so "the kick is tuned to X" is soft to
+                    # begin with. Reported so a human can judge it; not
+                    # asserted as a defect.
+                    observations.append(
+                        f"kick/bass semitone: {p['a']} reads as tuned to "
+                        f"{drum_note} ({p['a_root']}) while {p['b']} plays "
+                        f"{bass_note}, {when}. 7 of 18 reference records trip "
+                        f"this same test, so treat it as a thing to listen "
+                        f"for rather than a fault.")
         elif p["harsh"]:
             if share >= SUSTAINED_MIN:
                 problems.append(
@@ -807,12 +879,11 @@ def analyze(sources, sr):
                 problems.append(
                     f"OUT OF SCALE: {r['name']} plays {', '.join(outside)} — "
                     f"outside any diatonic scale on {tonic}.")
-    ref_cents, n_ref = track_tuning_cents(readings, loud)
-    if abs(ref_cents) > 10 and n_ref >= 2:
+    if abs(tune) > 10:
         observations.append(
-            f"track tuning: this render sits {ref_cents:+.0f} cents from "
-            f"A440 overall — every OFF PITCH reading below is measured "
-            f"against that, not against concert pitch.")
+            f"track tuning: this render sits {tune:+.0f} cents from A440 "
+            f"overall — every note name and cents reading here is measured "
+            f"against that reference, not against concert pitch.")
     for r in readings:
         if r.get("silent") or not r.get("usable_pitch") or \
                 r["name"] not in loud:
@@ -821,7 +892,7 @@ def analyze(sources, sr):
         spread = n.get("cents_spread", 0.0)
         if spread > 60:
             continue                 # a pitch-swept source has no one pitch
-        c = n["median_cents"] - (ref_cents if n_ref >= 2 else 0.0)
+        c = n["median_cents"]
         ci = n.get("cents_ci", CENTS_CI_FLOOR)
         if abs(c) <= OFF_PITCH_CENTS:
             continue
@@ -831,12 +902,17 @@ def analyze(sources, sr):
                 f"{PC_NAMES[n['top_pc']]}, but only to +-{ci:.0f} cents — "
                 f"under the resolution needed to call it.")
             continue
-        problems.append(
-            f"OFF PITCH: {r['name']} sits {c:+.0f}+-{ci:.0f} cents from "
-            f"{PC_NAMES[n['top_pc']]} relative to the rest of the track — "
-            f"retune the sample.")
+        # Also an observation: Sam Paganini's "Rave" measures its bass at
+        # -44 and -45 cents against its own track reference across two
+        # windows, the same magnitude this flags on our renders. A reading
+        # that a released record shares cannot separate good from bad.
+        observations.append(
+            f"off pitch: {r['name']} sits {c:+.0f}+-{ci:.0f} cents from "
+            f"{PC_NAMES[n['top_pc']]} relative to the rest of the track. "
+            f"Sam Paganini's 'Rave' measures -44 cents on the same test, so "
+            f"this is only worth acting on if you can hear it.")
     return {"sources": readings, "consensus": cons, "pairs": pairs,
-            "tuning_ref_cents": round(ref_cents, 1),
+            "tuning_ref_cents": round(tune, 1),
             "problems": problems, "observations": observations}
 
 

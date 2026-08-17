@@ -30,6 +30,12 @@ import patterns as P  # noqa: E402
 
 BPM = 133.0
 FORGED2 = "query:UserLibrary#Samples:Forged2:{}.wav"
+SPLICE = "query:UserLibrary#Samples:Splice:{}.wav"
+# A voice whose stem starts with "Splice:" loads raw purchased material
+# instead of a Forged2 resample. Used deliberately here: the two new
+# percussion sources are being judged on their own before any chain
+# touches them, so a change of sound is not confounded with a change
+# of processing.
 ROOT = 60
 
 # Simpler plays one-shots in Trigger mode: the whole sample sounds regardless
@@ -56,8 +62,27 @@ VOICES = {
     "OHAT":   ("forged_hat_wide",        -11.0, 1.43, 0.30),
     # +3 dB: 25.4% of its energy is 350-2000 Hz and it plays 36 times a loop,
     # so it is the only voice that can add SUSTAINED mid rather than 3 hits.
-    "PERC":   ("forged_metal_slag",       -9.0, 1.77, 1.20),
-    "TICK":   ("forged_metal_tick",       -9.0, 0.24, None),
+    # forged_metal_slag is gone. Measured against the 1505-hit reference bank
+    # it put 17.1% of its power in 20-60 Hz against a corpus median of 0.2%
+    # (z +33.8, the largest outlier found anywhere in this project) and 42.2%
+    # in 60-120 Hz, with 85% rolloff at 215 Hz. It was not a percussion sound,
+    # it was a second bass with no top end to define it, fighting the kick and
+    # the bassline for the same octave — which is what "sounds like a cheap
+    # broken speaker" is. Chase heard it; the bank had scored it 2.85 and I
+    # had not acted.
+    #
+    # max_len also mattered: the perc phrase lands hits 3 and 4 sixteenths
+    # apart (0.34 s at 133 BPM) and this voice was clamped to 1.20 s, so it
+    # overlapped itself three deep. 0.30 s finishes before the next hit.
+    "PERC":   ("Splice:FO4_INT_percussion_conjuring", -11.5, 2.07, 0.30),
+    # forged_metal_tick was the "clock ticking" and the "weird cowbell": a
+    # 668 Hz ping with a 5.8 ms attack (z -3.5) and 20.6 dB crest (z +4.1).
+    # The bank called it INSIDE the corpus, which is the honest limit it warns
+    # about — "inside perc" means not obviously broken, never "belongs in this
+    # song". Hazard_2 is the same midrange register without the click: crest
+    # 7.7 dB instead of 20.6, peak 1443 Hz, a struck resonance rather than a
+    # tick. Its hits sit 1.25 beats apart, so 0.50 s never overlaps.
+    "TICK":   ("Splice:shs_torment_percussion_one_shot_Hazard_2", -12.0, 1.85, 0.50),
     "BELL":   ("forged_metal_bell",      -16.0, 1.24, None),
     "WOOD":   ("forged_wood_bone",       -13.0, 0.54, None),
     "SCRAPE": ("forged_scrape_grain",    -14.0, 1.70, None),
@@ -87,7 +112,24 @@ BASS_GAIN_DB = 18.0
 # baked inside individual samples. Tails are also what makes a loop roll rather
 # than tick, so this is aimed at `groove` as much as at `space`. The kick and
 # sub stay bone dry; everything decorative gets air.
+# (device, dry/wet, decay ms). The decay was fixed at 1400 ms for everything
+# until the producer ear pointed out the acid needs its own space.
 SPACE = {
+    # ACID had NO reverb at all while eight percussion voices had one — the
+    # most exposed melodic element in the track, bone dry against a wall of
+    # reverbed metal. A model that can actually hear the render A/B'd it
+    # against Drumcode releases six times and named this in three of them
+    # independently: "too loud and tonally static, masking the kick",
+    # "completely dry and static, lacking the modulation and spatial effects
+    # needed to integrate it into the mix", "harsh and completely dry, lacking
+    # the spatial processing needed to integrate it with the rhythm section".
+    # It is also, in different words, Chase's "these instruments feel like
+    # they are part of different songs".
+    #
+    # Longer decay than the percussion: a 2.4 s tail is what puts a lead in a
+    # room rather than just wetting it. Predelay 20 ms keeps the attack in
+    # front of its own reverb so the line stays articulate.
+    "ACID":   ("Reverb", 0.27, 2400.0),
     # CHAT gets a little air because the sample decays in 29 ms against a
     # corpus median of 75 ms — it reads as a tick rather than a hi-hat.
     "CHAT":   ("Reverb", 0.11),
@@ -456,12 +498,23 @@ def wood_pattern(bars, rng):
 
 
 def tick_pattern(bars, rng):
-    """Bright metal accents off the grid — carries high-band movement."""
-    notes = []
-    for bar in range(bars):
-        for pos, vel in ((0.875, 96), (2.375, 104), (3.625, 88)):
-            notes.append(P.note(ROOT, bar * 4 + pos, 0.2, vel, vdev=-8))
-    return notes
+    """Metal accents on the offbeat 8ths, answering the perc phrase.
+
+    The old version placed three hits at 0.875, 2.375 and 3.625 beats — the
+    7th, 19th and 29th 16ths, off the grid and unrelated to anything else in
+    the loop. Chase heard exactly that: "a thing that sounds like a clock
+    ticking comes in randomly". Syncopation only reads as syncopation against
+    something; against nothing it reads as an accident. These land on the
+    offbeat 8ths, where the open hat already is, and the second bar answers
+    the first instead of repeating it.
+    """
+    b1 = [0] * 16
+    for i, v in ((6, 104), (14, 88)):
+        b1[i] = v
+    b2 = [0] * 16
+    for i, v in ((6, 104), (10, 78), (14, 96)):
+        b2[i] = v
+    return _steps(bars, b1 + b2, dur=0.3, cycle=2)
 
 
 def scrape_pattern(bars, rng):
@@ -500,7 +553,9 @@ def main(bars, seed):
     ps = ParamSetter(b.live)
     tracks = {}
     for name, (stem, _, length, max_len) in VOICES.items():
-        idx = b.ensure_track(name, FORGED2.format(stem), stem)
+        uri = SPLICE.format(stem.split(":", 1)[1]) if stem.startswith("Splice:") \
+            else FORGED2.format(stem)
+        idx = b.ensure_track(name, uri, stem.split(":")[-1])
         tracks[name] = idx
         if max_len:
             # S Length is a fraction of the sample; Fade Out keeps the cut clean.
@@ -603,6 +658,23 @@ def main(bars, seed):
     print("voices per bar: " + " ".join(f"{b}:{len(active.get(b, ()))}"
                                         for b in range(1, bars + 1)))
 
+    # ---- percussion: keep its body, lose its bite.
+    # conjuring is 40.6% mid and 53.3% HIGHMID (z +3.7 against the reference
+    # bank). The midrange is why it was bought; the 2-6 kHz is where human
+    # hearing is most sensitive, and 30 hits a loop of it pushed that band
+    # +5.1 dB over the previous render. Chase's word was "painful", and at
+    # 2-5 kHz that is a statement about physiology, not taste. The profile
+    # printed this before the render and I shipped anyway.
+    dp = b.ensure_effect(tracks["PERC"], "EQ Eight")
+    if dp is not None:
+        ps.set_many(tracks["PERC"], dp, {
+            "7 Filter On A": (E, "On"), "7 Filter Type A": (E, "Bell"),
+            "7 Frequency A": (V, 3200.0), "7 Gain A": (V, -9.0),
+            "7 Q A": (V, 0.6),
+            "8 Filter On A": (E, "On"), "8 Filter Type A": (E, "High Shelf"),
+            "8 Frequency A": (V, 5000.0), "8 Gain A": (V, -6.0),
+        }, label="PERC de-harsh")
+
     # ---- closed hat: move its energy up an octave.
     # The reference-derived one-shot bank puts forged_hat_static 2.8 sigma
     # BELOW the corpus on 6-12 kHz (16.5% against 61.2%) and 3.1 sigma above
@@ -629,13 +701,17 @@ def main(bars, seed):
         }, label="CHAT brighten")
 
     # ---- space: a real reverb per decorative voice
-    for name, (dev, wet) in SPACE.items():
+    for name, cfg in SPACE.items():
+        dev, wet = cfg[0], cfg[1]
+        decay = cfg[2] if len(cfg) > 2 else 1400.0
+        predelay = 20.0 if name == "ACID" else 8.0
         di = b.ensure_effect(tracks[name], dev)
         if di is None:
             continue
         ps.set_many(tracks[name], di, {
-            "Room Size": (N, 0.42), "Decay Time": (V, 1400.0),
-            "Predelay": (V, 8.0), "Dry/Wet": (N, wet),
+            "Room Size": (N, 0.55 if name == "ACID" else 0.42),
+            "Decay Time": (V, decay),
+            "Predelay": (V, predelay), "Dry/Wet": (N, wet),
             "Cut On": (E, "On"), "In Hi Cut On": (E, "On"),
             "In Lo Cut On": (E, "On"), "Input Freq": (V, 1500.0),
             "Input Width": (N, 0.85), "Stereo Image": (V, 110.0),

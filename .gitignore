@@ -48,3 +48,6 @@ reference-audio/tonal_reference.json
 # ... and with oneshot_bank.py build --clap
 reference-audio/oneshot_bank.json
 reference-audio/oneshot_clap.npz
+
+# Gemini/OpenRouter client venv for the producer ear
+.venv-producer/
